@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Prefecture;
 use Illuminate\Http\Request;
 
-class ShopsController extends Controller
+class PrefecturesController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -13,9 +14,7 @@ class ShopsController extends Controller
      */
     public function index()
     {
-        return [
-            
-        ];
+        return Prefecture::all();
     }
 
     /**

@@ -19,3 +19,4 @@ Route::get('/', function () {
 
 Route::get('shops', 'ShopsController@index');
 Route::post('shops', 'ShopsController@post');
+Route::get('prefectures', 'PrefecturesController@index');
