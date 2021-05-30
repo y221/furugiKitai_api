@@ -18,5 +18,5 @@ Route::get('/', function () {
 });
 
 Route::get('shops', 'ShopsController@index');
-Route::post('shops', 'ShopsController@post');
+Route::post('shops', 'ShopsController@create');
 Route::get('prefectures', 'PrefecturesController@index');

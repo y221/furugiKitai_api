@@ -28,8 +28,8 @@ class CreateShopsTable extends Migration
             $table->string('image_url', 100);
             $table->date('created_at');
             $table->integer('created_user_id');
-            $table->date('updated_at');
-            $table->integer('updated_user_id');
+            $table->date('updated_at')->nullable();
+            $table->integer('updated_user_id')->nullable();
         });
     }
 
