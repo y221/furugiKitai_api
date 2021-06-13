@@ -7,6 +7,17 @@ use Illuminate\Http\Request;
 
 class PrefecturesController extends Controller
 {
+    protected $prefecture;
+
+    /**
+     * DI
+     *
+     * @param Prefecture $prefecture
+     */
+    public function __construct(Prefecture $prefecture)
+    {
+        $this->prefecture = $prefecture;
+    }
     /**
      * Display a listing of the resource.
      *
@@ -14,7 +25,7 @@ class PrefecturesController extends Controller
      */
     public function index()
     {
-        return Prefecture::all();
+        return $this->prefecture->all();
     }
 
     /**

@@ -5,30 +5,58 @@ namespace App\Http\Controllers;
 use App\Models\Shop;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Library\MyFunction;
 
 class ShopsController extends Controller
 {
+    protected $shop;
+    protected $myFunction;
+
     /**
-     * Display a listing of the resource.
+     * DI
      *
-     * @return \Illuminate\Http\Response
+     * @param Shop $shop
+     * @param MyFunction $myFunction
+     * @return void
      */
-    public function index()
+    public function __construct(Shop $shop, MyFunction $myFunction)
     {
-        return [
-            
-        ];
+        $this->shop = $shop;
+        $this->myFunction = $myFunction;
+    }
+    /**
+     * 一覧取得
+     *
+     * @param Request $request
+     * @return array
+     */
+    public function index(Request $request)
+    {
+        $page = $request->page ?? 0;
+        $limit = $request->limit ?? 0;
+        $shops = $this->shop->getShops((int)$page, (int)$limit);
+        return $this->myFunction->changeArrayKeyCamel($shops->toArray());
     }
 
     /**
-     * Show the form for creating a new resource.
+     * 登録
      *
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return array
      */
     public function create(Request $request)
     {
-        $shopData = $request->shopData;
-        $validator = Validator::make($shopData, [
+        $shop = $request->shopData;
+        $validator = $this->setValidator($shop);
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors()], 400);
+        }
+        $result = $this->shop->insertShop($shop);
+    }
+
+    private function setValidator($shop)
+    {
+        return Validator::make($shop, [
             'name' => 'required|max:50',
             'prefecture' => 'integer',
             'city' => 'max:50',
@@ -41,25 +69,6 @@ class ShopsController extends Controller
             'businessHour' => 'max:200',
             'imageUrl' => 'max:100'
         ]);
-        if ($validator->fails()) {
-            return response()->json(['message' => $validator->errors()], 400);
-        }
-        $shop = new Shop;
-        $shop->name = $shopData['name'];
-        $shop->prefecture_id = $shopData['prefecture'] ?? '';
-        $shop->city = $shopData['city'] ?? '';
-        $shop->address = $shopData['address'] ?? '';
-        $shop->building = $shopData['building'] ?? '';
-        $shop->access = $shopData['access'] ?? '';
-        $shop->phone_number = $shopData['phoneNumber'] ?? '';
-        $shop->instagram_url = $shopData['instagram'] ?? '';
-        $shop->holiday = $shopData['holiday'] ?? '';
-        $shop->business_hour = $shopData['businessHour'] ?? '';
-        $shop->image_url = '';//$shopData['imageUrl'];
-        $shop->created_at = date('Y-m-d H:i:s');
-        $shop->created_user_id = 0;
-        $result = $shop->save();
-
     }
 
     /**
