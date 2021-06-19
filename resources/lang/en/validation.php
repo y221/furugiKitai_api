@@ -59,7 +59,7 @@ return [
     'image' => 'The :attribute must be an image.',
     'in' => 'The selected :attribute is invalid.',
     'in_array' => 'The :attribute field does not exist in :other.',
-    'integer' => 'The :attribute must be an integer.',
+    'integer' => ':attribute は数字で入力してください。',
     'ip' => 'The :attribute must be a valid IP address.',
     'ipv4' => 'The :attribute must be a valid IPv4 address.',
     'ipv6' => 'The :attribute must be a valid IPv6 address.',
@@ -79,7 +79,8 @@ return [
     'max' => [
         'numeric' => 'The :attribute may not be greater than :max.',
         'file' => 'The :attribute may not be greater than :max kilobytes.',
-        'string' => 'The :attribute may not be greater than :max characters.',
+        // 'string' => 'The :attribute may not be greater than :max characters.',
+        'string' => ':attribute は最大 :max 文字です。',
         'array' => 'The :attribute may not have more than :max items.',
     ],
     'mimes' => 'The :attribute must be a file of type: :values.',
@@ -97,7 +98,7 @@ return [
     'password' => 'The password is incorrect.',
     'present' => 'The :attribute field must be present.',
     'regex' => 'The :attribute format is invalid.',
-    'required' => 'The :attribute field is required.',
+    'required' => ':attribute は必須入力です。',
     'required_if' => 'The :attribute field is required when :other is :value.',
     'required_unless' => 'The :attribute field is required unless :other is in :values.',
     'required_with' => 'The :attribute field is required when :values is present.',
@@ -147,6 +148,18 @@ return [
     |
     */
 
-    'attributes' => [],
+    'attributes' => [
+        'name' => '名称',
+        'prefecture' => '都道府県',
+        'city' => '住所1',
+        'address' => '住所2',
+        'building' => '住所3',
+        'access' => 'アクセス',
+        'phoneNumber' => 'TEL',
+        'instagram' => 'Instagram',
+        'holiday' => '定休日',
+        'businessHour' => '営業時間',
+        'imageUrl' => '画像'
+    ],
 
 ];
