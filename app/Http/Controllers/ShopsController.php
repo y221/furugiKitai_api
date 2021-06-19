@@ -49,7 +49,7 @@ class ShopsController extends Controller
         $shop = $request->shopData;
         $validator = $this->setValidator($shop);
         if ($validator->fails()) {
-            return response()->json(['message' => $validator->errors()], 400);
+            return ['errors' => $validator->errors()];
         }
         $result = $this->shop->insertShop($shop);
     }
@@ -58,7 +58,7 @@ class ShopsController extends Controller
     {
         return Validator::make($shop, [
             'name' => 'required|max:50',
-            'prefecture' => 'integer',
+            'prefecture' => 'required|integer',
             'city' => 'max:50',
             'address' => 'max:50',
             'building' => 'max:50',
