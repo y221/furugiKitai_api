@@ -34,8 +34,15 @@ class ShopsController extends Controller
     {
         $page = $request->page ?? 0;
         $limit = $request->limit ?? 0;
-        $shops = $this->shop->getShops((int)$page, (int)$limit);
-        return $this->myFunction->changeArrayKeyCamel($shops->toArray());
+        $orderby = $request->orderby ?? 'id';
+        $order = $request->order ?? 'ASC';
+        $shops = $this->shop->getShops((int)$page, (int)$limit, $orderby, $order);
+        $shops = $this->myFunction->changeArrayKeyCamel($shops->toArray());
+        $count = $this->shop->getShopsCount();
+        return [
+            'shops' => $shops,
+            'count' => $count
+        ];
     }
 
     /**

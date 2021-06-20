@@ -11,12 +11,19 @@ class Shop extends Model
      *
      * @param int $page
      * @param int $limit
+     * @param string $orderby
+     * @param string $order
      * @return void
      */
-    public function getShops(int $page, int $limit)
+    public function getShops(int $page, int $limit, string $orderby, string $order)
     {
         $offset = $limit * ($page - 1);
-        return $this->offset($offset)->limit(5)->get();
+        return $this->offset($offset)->limit($limit)->orderby($orderby, $order)->get();
+    }
+
+    public function getShopsCount()
+    {
+        return $this->count();
     }
 
     public function insertShop(array $shop)
