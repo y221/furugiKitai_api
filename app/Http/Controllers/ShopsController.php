@@ -3,9 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Shop;
+use App\Library\MyFunction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use App\Library\MyFunction;
+use Illuminate\Support\Facades\Storage;
 
 class ShopsController extends Controller
 {
@@ -39,9 +40,12 @@ class ShopsController extends Controller
         $shops = $this->shop->getShops((int)$page, (int)$limit, $orderby, $order);
         $shops = $this->myFunction->changeArrayKeyCamel($shops->toArray());
         $count = $this->shop->getShopsCount();
+        foreach ($shops as $index => $shop) {
+            $shops[$index]['imageUrl'] = empty($shop['imageUrl']) ? '' : Storage::disk('s3')->url($shop['imageUrl']);
+        }
         return [
             'shops' => $shops,
-            'count' => $count
+            'count' => $count,
         ];
     }
 
@@ -53,11 +57,24 @@ class ShopsController extends Controller
      */
     public function create(Request $request)
     {
-        $shop = $request->shopData;
+        $shop = [
+            'name' => $request->input('name'),
+            'prefecture' => $request->input('prefecture'),
+            'city' => $request->input('city'),
+            'address' => $request->input('address'),
+            'building' => $request->input('building'),
+            'access' => $request->input('access'),
+            'phoneNumber' => $request->input('phoneNumber'),
+            'instagram' => $request->input('instagram'),
+            'holiday' => $request->input('holiday'),
+            'businessHour' => $request->input('businessHour'),
+        ];
         $validator = $this->setValidator($shop);
         if ($validator->fails()) {
             return ['errors' => $validator->errors()];
         }
+        $image = $request->file('mainImage') ?? '';
+        $shop['imageUrl'] = Storage::disk('s3')->put('shop_images', $image, 'public');
         $result = $this->shop->insertShop($shop);
     }
 

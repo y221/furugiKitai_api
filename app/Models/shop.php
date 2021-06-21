@@ -38,7 +38,7 @@ class Shop extends Model
         $this->instagram_url = $shop['instagram'] ?? '';
         $this->holiday = $shop['holiday'] ?? '';
         $this->business_hour = $shop['businessHour'] ?? '';
-        $this->image_url = '';//$shop['imageUrl'];
+        $this->image_url = $shop['imageUrl'] ?? '';
         $this->created_at = date('Y-m-d H:i:s');
         $this->created_user_id = 0;
         return $this->save();
