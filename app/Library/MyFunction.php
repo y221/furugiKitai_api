@@ -9,7 +9,7 @@ class MyFunction
      * 配列のキーをキャメルケースに変換
      *
      * @param array $array
-     * @return void
+     * @return array
      */
     public static function changeArrayKeyCamel($array)
     {
