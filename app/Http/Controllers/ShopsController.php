@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Shop;
+use App\Models\Prefecture;
 use App\Library\MyFunction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\Storage;
 class ShopsController extends Controller
 {
     protected $shop;
+    protected $prefecture;
     protected $myFunction;
 
     /**
@@ -20,9 +22,10 @@ class ShopsController extends Controller
      * @param MyFunction $myFunction
      * @return void
      */
-    public function __construct(Shop $shop, MyFunction $myFunction)
+    public function __construct(Shop $shop, Prefecture $prefecture, MyFunction $myFunction)
     {
         $this->shop = $shop;
+        $this->prefecture = $prefecture;
         $this->myFunction = $myFunction;
     }
     /**
@@ -33,14 +36,17 @@ class ShopsController extends Controller
      */
     public function index(Request $request)
     {
+        $id = $request->id ?? 0;
         $page = $request->page ?? 0;
         $limit = $request->limit ?? 0;
         $orderby = $request->orderby ?? 'id';
         $order = $request->order ?? 'ASC';
-        $shops = $this->shop->getShops((int)$page, (int)$limit, $orderby, $order);
+        $shops = $this->shop->getShops((int)$id, (int)$page, (int)$limit, $orderby, $order);
+        $prefectures = array_column($this->prefecture->getPrefectures()->toArray(), 'prefecture', 'id');
         $shops = $this->myFunction->changeArrayKeyCamel($shops->toArray());
         $count = $this->shop->getShopsCount();
         foreach ($shops as $index => $shop) {
+            $shops[$index]['prefecture'] = $prefectures[$shop['prefectureId']];
             $shops[$index]['imageUrl'] = empty($shop['imageUrl']) ? '' : Storage::disk('s3')->url($shop['imageUrl']);
         }
         return [

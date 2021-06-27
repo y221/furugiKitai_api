@@ -9,16 +9,27 @@ class Shop extends Model
     /**
      * ショップ取得
      *
+     * @param int $id
      * @param int $page
      * @param int $limit
      * @param string $orderby
      * @param string $order
      * @return void
      */
-    public function getShops(int $page, int $limit, string $orderby, string $order)
+    public function getShops(int $id, int $page, int $limit, string $orderby, string $order)
     {
-        $offset = $limit * ($page - 1);
-        return $this->offset($offset)->limit($limit)->orderby($orderby, $order)->get();
+        if (!empty($id)) {
+            $this->where('id', $id);
+        }
+        if (!empty($page) && !empty($limit)) {
+            $offset = $limit * ($page - 1);
+            $this->offset($offset);
+            $this->limit($limit);
+        }
+        if (!empty($orderby) && !empty($order)) {
+            $this->orderby($orderby, $order);
+        }
+        return $this->get();
     }
 
     public function getShopsCount()
