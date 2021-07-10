@@ -16,25 +16,27 @@ class Shop extends Model
      * @param string $order
      * @return void
      */
-    public function getShops(int $id, int $page, int $limit, string $orderby, string $order)
+    public function getShops(int $id, int $page = 1, int $limit = 5, string $orderby = 'id', string $order = 'ASC')
     {
-        if (!empty($id)) {
-            $this->where('id', $id);
-        }
-        if (!empty($page) && !empty($limit)) {
-            $offset = $limit * ($page - 1);
-            $this->offset($offset);
-            $this->limit($limit);
-        }
-        if (!empty($orderby) && !empty($order)) {
-            $this->orderby($orderby, $order);
-        }
-        return $this->get();
+        $offset = !empty($page) && !empty($limit) ? $limit * ($page - 1) : 0;
+        return $this
+            ->ofValues('id', $id)
+            ->offset($offset)
+            ->limit($limit)
+            ->orderby($orderby, $order)
+            ->get();
     }
 
     public function getShopsCount()
     {
         return $this->count();
+    }
+
+    public function scopeOfValues($query, $key, $value)
+    {
+        if (!empty($value)) {
+            return $query->where($key, $value);
+        }
     }
 
     public function insertShop(array $shop)
