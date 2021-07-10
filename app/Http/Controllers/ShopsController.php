@@ -43,9 +43,7 @@ class ShopsController extends Controller
         $order = $request->order ?? 'ASC';
         $shops = $this->shop->getShops((int)$id, (int)$page, (int)$limit, $orderby, $order);
         $prefectures = array_column($this->prefecture->getPrefectures()->toArray(), 'prefecture', 'id');
-        // dd($shops->toArray());
         $shops = $this->myFunction->changeArrayKeyCamel($shops->toArray());
-        dd($shops);
         $count = $this->shop->getShopsCount();
         foreach ($shops as $index => $shop) {
             $shops[$index]['prefecture'] = $prefectures[$shop['prefectureId']];
