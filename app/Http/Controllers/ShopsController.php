@@ -37,8 +37,8 @@ class ShopsController extends Controller
     public function index(Request $request)
     {
         $id = $request->id ?? 0;
-        $page = $request->page ?? 0;
-        $limit = $request->limit ?? 0;
+        $page = $request->page ?? 1;
+        $limit = $request->limit ?? 1;
         $orderby = $request->orderby ?? 'id';
         $order = $request->order ?? 'ASC';
         $shops = $this->shop->getShops((int)$id, (int)$page, (int)$limit, $orderby, $order);
@@ -66,21 +66,23 @@ class ShopsController extends Controller
         $shop = [
             'name' => $request->input('name'),
             'prefecture' => $request->input('prefecture'),
-            'city' => $request->input('city'),
-            'address' => $request->input('address'),
-            'building' => $request->input('building'),
-            'access' => $request->input('access'),
-            'phoneNumber' => $request->input('phoneNumber'),
-            'instagram' => $request->input('instagram'),
-            'holiday' => $request->input('holiday'),
-            'businessHour' => $request->input('businessHour'),
+            'city' => $request->input('city') ?? '',
+            'address' => $request->input('address') ?? '',
+            'building' => $request->input('building') ?? '',
+            'latitude' => $request->input('latitude'),
+            'longitude' => $request->input('longitude'),
+            'access' => $request->input('access') ?? '',
+            'phoneNumber' => $request->input('phoneNumber') ?? '',
+            'instagram' => $request->input('instagram') ?? '',
+            'holiday' => $request->input('holiday') ?? '',
+            'businessHour' => $request->input('businessHour') ?? '',
         ];
         $validator = $this->setValidator($shop);
         if ($validator->fails()) {
             return ['errors' => $validator->errors()];
         }
         $image = $request->file('mainImage') ?? '';
-        $shop['imageUrl'] = Storage::disk('s3')->put('shop_images', $image, 'public');
+        $shop['imageUrl'] = empty($image) ? '' : Storage::disk('s3')->put('shop_images', $image, 'public');
         $result = $this->shop->insertShop($shop);
     }
 
@@ -92,6 +94,8 @@ class ShopsController extends Controller
             'city' => 'max:50',
             'address' => 'max:50',
             'building' => 'max:50',
+            'latitude' => 'numeric|nullable',
+            'longitude' => 'numeric|nullable',
             'access' => 'max:50',
             'phoneNumber' => 'max:50',
             'instagram' => 'max:50',
