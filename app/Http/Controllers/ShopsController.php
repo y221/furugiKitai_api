@@ -37,8 +37,8 @@ class ShopsController extends Controller
     public function index(Request $request)
     {
         $id = $request->id ?? 0;
-        $page = $request->page ?? 0;
-        $limit = $request->limit ?? 0;
+        $page = $request->page ?? 1;
+        $limit = $request->limit ?? 1;
         $orderby = $request->orderby ?? 'id';
         $order = $request->order ?? 'ASC';
         $shops = $this->shop->getShops((int)$id, (int)$page, (int)$limit, $orderby, $order);

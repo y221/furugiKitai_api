@@ -16,9 +16,9 @@ class Shop extends Model
      * @param string $order
      * @return void
      */
-    public function getShops(int $id, int $page = 1, int $limit = 5, string $orderby = 'id', string $order = 'ASC')
+    public function getShops(int $id, int $page, int $limit, string $orderby = 'id', string $order = 'ASC')
     {
-        $offset = !empty($page) && !empty($limit) ? $limit * ($page - 1) : 0;
+        $offset = $limit * ($page - 1);
         return $this
             ->ofValues('id', $id)
             ->offset($offset)
