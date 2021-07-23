@@ -43,7 +43,7 @@ class ShopsController extends Controller
         $order = $request->order ?? 'ASC';
         $shops = $this->shop->getShops((int)$id, (int)$page, (int)$limit, $orderby, $order);
         $prefectures = array_column($this->prefecture->getPrefectures()->toArray(), 'prefecture', 'id');
-        $shops = $this->myFunction->changeArrayKeyCamel($shops->toArray());
+        $shops = $this->myFunction->changeArrayKeyCamel($shops->toArray(), true);
         $count = $this->shop->getShopsCount();
         foreach ($shops as $index => $shop) {
             $shops[$index]['prefecture'] = $prefectures[$shop['prefectureId']];
@@ -124,7 +124,12 @@ class ShopsController extends Controller
      */
     public function show($id)
     {
-        //
+        $shop = $this->shop->getShop($id)->toArray();
+        $shop = $this->myFunction->changeArrayKeyCamel($shop, false);
+        $prefecture = $this->prefecture->getPrefecture($shop['prefectureId'])->toArray();
+        $shop['prefecture'] = $prefecture['prefecture'];
+        $shop['imageUrl'] = empty($shop['imageUrl']) ? '' : Storage::disk('s3')->url($shop['imageUrl']);
+        return $shop;
     }
 
     /**

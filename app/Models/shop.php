@@ -14,7 +14,7 @@ class Shop extends Model
      * @param int $limit
      * @param string $orderby
      * @param string $order
-     * @return void
+     * @return object
      */
     public function getShops(int $id, int $page, int $limit, string $orderby = 'id', string $order = 'ASC')
     {
@@ -25,6 +25,17 @@ class Shop extends Model
             ->limit($limit)
             ->orderby($orderby, $order)
             ->get();
+    }
+
+    /**
+     * ショップをidで取得
+     *
+     * @param integer $id
+     * @return object
+     */
+    public function getShop(int $id)
+    {
+        return $this->where('id', $id)->first();
     }
 
     public function getShopsCount()
