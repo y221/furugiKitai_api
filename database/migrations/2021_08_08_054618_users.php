@@ -12,7 +12,8 @@ class Users extends Migration
      * @return void
      */
     public function up()
-    {
+    {   
+        Schema::dropIfExists('users');
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('icon', 100);
