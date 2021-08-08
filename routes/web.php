@@ -18,5 +18,7 @@ Route::get('/', function () {
 });
 
 Route::get('shops', 'ShopsController@index');
+Route::get('shops/{id}', 'ShopsController@show');
+Route::put('shops/{id}', 'ShopsController@update');
 Route::post('shops', 'ShopsController@create');
 Route::get('prefectures', 'PrefecturesController@index');

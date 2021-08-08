@@ -11,9 +11,15 @@ class MyFunction
      * @param array $array
      * @return array
      */
-    public static function changeArrayKeyCamel($array)
+    public static function changeArrayKeyCamel($array, $isMultiArray)
     {
         $arrayKeyCamel = [];
+        if (!$isMultiArray) {
+            foreach($array as $key => $value) {
+                $arrayKeyCamel[Str::camel($key)] = $value; 
+            }
+            return $arrayKeyCamel;
+        }
         foreach ($array as $record) {
             $convertedRecord = [];
             foreach ($record as $key => $value) {

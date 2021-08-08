@@ -150,7 +150,7 @@ return [
 
     'attributes' => [
         'name' => '名称',
-        'prefecture' => '都道府県',
+        'prefectureId' => '都道府県',
         'city' => '住所1',
         'address' => '住所2',
         'building' => '住所3',
