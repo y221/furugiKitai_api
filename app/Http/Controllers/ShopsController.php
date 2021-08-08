@@ -65,7 +65,7 @@ class ShopsController extends Controller
     {
         $shop = [
             'name' => $request->input('name'),
-            'prefecture' => $request->input('prefecture'),
+            'prefectureId' => $request->input('prefectureId'),
             'city' => $request->input('city') ?? '',
             'address' => $request->input('address') ?? '',
             'building' => $request->input('building') ?? '',
@@ -73,7 +73,7 @@ class ShopsController extends Controller
             'longitude' => $request->input('longitude'),
             'access' => $request->input('access') ?? '',
             'phoneNumber' => $request->input('phoneNumber') ?? '',
-            'instagram' => $request->input('instagram') ?? '',
+            'instagramUrl' => $request->input('instagramUrl') ?? '',
             'holiday' => $request->input('holiday') ?? '',
             'businessHour' => $request->input('businessHour') ?? '',
         ];
@@ -90,7 +90,7 @@ class ShopsController extends Controller
     {
         return Validator::make($shop, [
             'name' => 'required|max:50',
-            'prefecture' => 'required|integer',
+            'prefectureId' => 'required|integer',
             'city' => 'max:50',
             'address' => 'max:50',
             'building' => 'max:50',
@@ -98,10 +98,9 @@ class ShopsController extends Controller
             'longitude' => 'numeric|nullable',
             'access' => 'max:50',
             'phoneNumber' => 'max:50',
-            'instagram' => 'max:50',
+            'instagramUrl' => 'max:50',
             'holiday' => 'max:50',
             'businessHour' => 'max:200',
-            'imageUrl' => 'max:100'
         ]);
     }
 
@@ -138,9 +137,9 @@ class ShopsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit($id, Request $request)
     {
-        //
+        
     }
 
     /**
@@ -152,7 +151,47 @@ class ShopsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $shop = [
+            'name' => $request->input('name'),
+            'prefectureId' => $request->input('prefectureId'),
+            'city' => $request->input('city') ?? '',
+            'address' => $request->input('address') ?? '',
+            'building' => $request->input('building') ?? '',
+            'latitude' => $request->input('latitude'),
+            'longitude' => $request->input('longitude'),
+            'access' => $request->input('access') ?? '',
+            'phoneNumber' => $request->input('phoneNumber') ?? '',
+            'instagramUrl' => $request->input('instagramUrl') ?? '',
+            'holiday' => $request->input('holiday') ?? '',
+            'businessHour' => $request->input('businessHour') ?? '',
+        ];
+        $validator = $this->setValidator($shop);
+        if ($validator->fails()) {
+            return ['errors' => $validator->errors()];
+        }
+        $defaultShop = $this->myFunction->changeArrayKeyCamel($this->shop->getShop($id)->toArray(), false);
+        $shop = $this->myFunction->changeArrayKeyCamel($shop, false);
+        $image = $request->file('mainImage') ?? '';
+        $shop['imageUrl'] = $defaultShop['imageUrl'];
+        if ($this->checkImageUpdated($image, $defaultShop['imageUrl'])) {
+            $shop['imageUrl'] = Storage::disk('s3')->put('shop_images', $image, 'public');
+        }
+        $this->shop->updateShop($id, $shop);
+    }
+
+    /**
+     * 既存の画像が更新されているかチェック
+     *
+     * @param string $imageUrl
+     * @param string $defaultImageUrl
+     * @return boolean
+     */
+    private function checkImageUpdated($imageUrl, $defaultImageUrl)
+    {
+        if (empty($imageUrl)) return false;
+        if (!empty($imageUrl) && empty($defaultImageUrl)) return true;
+        $image = Storage::disk('s3')->url($defaultImageUrl);
+        return $imageUrl !== $image;
     }
 
     /**
