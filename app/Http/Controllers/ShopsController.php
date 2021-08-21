@@ -169,7 +169,7 @@ class ShopsController extends Controller
         if ($validator->fails()) {
             return ['errors' => $validator->errors()];
         }
-        $defaultShop = $this->myFunction->changeArrayKeyCamel($this->shop->getShop($id)->toArray(), false);
+        $defaultShop = $this->myFunction->changeArrayKeyCamel($this->shop->getShop($id)->toArray());
         $image = $request->file('mainImage') ?? '';
         $shop['imageUrl'] = $defaultShop['imageUrl'];
         if ($this->checkImageUpdated($image, $defaultShop['imageUrl'])) {
