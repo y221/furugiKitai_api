@@ -8,18 +8,14 @@ class MyFunction
     /**
      * 配列のキーをキャメルケースに変換
      * @param array $target
-     * @return array
+     * @return array $arrayKeyCamel
      */
     public static function changeArrayKeyCamel(array $target):array
     {
+        $arrayKeyCamel = [];
         foreach($target as $key => $value) {
-            unset($target[$key]);
-            if(is_array($value)) {
-                $target[str::camel($key)] = self::changeArrayKeyCamel($value);
-            } else {
-                $target[str::camel($key)] = $value;
-            }
+            $arrayKeyCamel[str::camel($key)] = is_array($value) ? self::changeArrayKeyCamel($value) : $value;
         }
-        return $target;
+        return $arrayKeyCamel;
     }
 }

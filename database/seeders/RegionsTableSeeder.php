@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
-class AreasTableSeeder extends Seeder
+class RegionsTableSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -14,7 +14,7 @@ class AreasTableSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('areas')->insert([
+        DB::table('regions')->insert([
             ['name' => '北海道・東北'],
             ['name' => '関東'],
             ['name' => '北陸・甲信越'],
