@@ -21,4 +21,5 @@ Route::get('shops', 'ShopsController@index');
 Route::get('shops/{id}', 'ShopsController@show');
 Route::put('shops/{id}', 'ShopsController@update');
 Route::post('shops', 'ShopsController@create');
+Route::get('regions', 'RegionsController@index');
 Route::get('prefectures', 'PrefecturesController@index');

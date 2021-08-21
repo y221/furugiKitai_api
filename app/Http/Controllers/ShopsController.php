@@ -43,7 +43,7 @@ class ShopsController extends Controller
         $order = $request->order ?? 'ASC';
         $shops = $this->shop->getShops((int)$id, (int)$page, (int)$limit, $orderby, $order);
         $prefectures = array_column($this->prefecture->getPrefectures()->toArray(), 'prefecture', 'id');
-        $shops = $this->myFunction->changeArrayKeyCamel($shops->toArray(), true);
+        $shops = $this->myFunction->changeArrayKeyCamel($shops->toArray());
         $count = $this->shop->getShopsCount();
         foreach ($shops as $index => $shop) {
             $shops[$index]['prefecture'] = $prefectures[$shop['prefectureId']];
@@ -124,7 +124,7 @@ class ShopsController extends Controller
     public function show($id)
     {
         $shop = $this->shop->getShop($id)->toArray();
-        $shop = $this->myFunction->changeArrayKeyCamel($shop, false);
+        $shop = $this->myFunction->changeArrayKeyCamel($shop);
         $prefecture = $this->prefecture->getPrefecture($shop['prefectureId'])->toArray();
         $shop['prefecture'] = $prefecture['prefecture'];
         $shop['imageUrl'] = empty($shop['imageUrl']) ? '' : Storage::disk('s3')->url($shop['imageUrl']);
@@ -169,7 +169,7 @@ class ShopsController extends Controller
         if ($validator->fails()) {
             return ['errors' => $validator->errors()];
         }
-        $defaultShop = $this->myFunction->changeArrayKeyCamel($this->shop->getShop($id)->toArray(), false);
+        $defaultShop = $this->myFunction->changeArrayKeyCamel($this->shop->getShop($id)->toArray());
         $image = $request->file('mainImage') ?? '';
         $shop['imageUrl'] = $defaultShop['imageUrl'];
         if ($this->checkImageUpdated($image, $defaultShop['imageUrl'])) {

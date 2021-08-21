@@ -7,25 +7,14 @@ class MyFunction
 {
     /**
      * 配列のキーをキャメルケースに変換
-     *
-     * @param array $array
-     * @return array
+     * @param array $target
+     * @return array $arrayKeyCamel
      */
-    public static function changeArrayKeyCamel($array, $isMultiArray)
+    public static function changeArrayKeyCamel(array $target):array
     {
         $arrayKeyCamel = [];
-        if (!$isMultiArray) {
-            foreach($array as $key => $value) {
-                $arrayKeyCamel[Str::camel($key)] = $value; 
-            }
-            return $arrayKeyCamel;
-        }
-        foreach ($array as $record) {
-            $convertedRecord = [];
-            foreach ($record as $key => $value) {
-                $convertedRecord[Str::camel($key)] = $value; 
-            }
-            $arrayKeyCamel[] = $convertedRecord;
+        foreach($target as $key => $value) {
+            $arrayKeyCamel[str::camel($key)] = is_array($value) ? self::changeArrayKeyCamel($value) : $value;
         }
         return $arrayKeyCamel;
     }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Library\MyFunction;
 use App\Models\Prefecture;
 use Illuminate\Http\Request;
 
@@ -13,10 +14,12 @@ class PrefecturesController extends Controller
      * DI
      *
      * @param Prefecture $prefecture
+     * @param MyFunction $myFunction
      */
-    public function __construct(Prefecture $prefecture)
+    public function __construct(Prefecture $prefecture, MyFunction $myFunction)
     {
         $this->prefecture = $prefecture;
+        $this->myFunction = $myFunction;
     }
     /**
      * Display a listing of the resource.
@@ -25,7 +28,7 @@ class PrefecturesController extends Controller
      */
     public function index()
     {
-        return $this->prefecture->all();
+        return $this->myFunction->changeArrayKeyCamel($this->prefecture->all()->toArray());
     }
 
     /**
