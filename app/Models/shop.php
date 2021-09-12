@@ -54,6 +54,7 @@ class Shop extends Model
     {
         $this->name = $shop['name'];
         $this->prefecture_id = $shop['prefectureId'];
+        $this->gender_id = $shop['genderId'];
         $this->city = $shop['city'];
         $this->address = $shop['address'];
         $this->building = $shop['building'];
@@ -73,6 +74,7 @@ class Shop extends Model
         $this->where('id', $id)->update([
             'name' => $request['name'],
             'prefecture_id' => $request['prefectureId'],
+            'gender_id' => $request['genderId'],
             'city' => $request['city'],
             'address' => $request['address'],
             'building' => $request['building'],
