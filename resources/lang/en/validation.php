@@ -151,6 +151,7 @@ return [
     'attributes' => [
         'name' => '名称',
         'prefectureId' => '都道府県',
+        'genderId' => 'お取扱',
         'city' => '住所1',
         'address' => '住所2',
         'building' => '住所3',

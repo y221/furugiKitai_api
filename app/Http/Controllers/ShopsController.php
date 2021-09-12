@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Shop;
 use App\Models\Prefecture;
+use App\Models\Gender;
 use App\Library\MyFunction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -13,6 +14,7 @@ class ShopsController extends Controller
 {
     protected $shop;
     protected $prefecture;
+    protected $gender;
     protected $myFunction;
 
     /**
@@ -22,10 +24,11 @@ class ShopsController extends Controller
      * @param MyFunction $myFunction
      * @return void
      */
-    public function __construct(Shop $shop, Prefecture $prefecture, MyFunction $myFunction)
+    public function __construct(Shop $shop, Prefecture $prefecture, Gender $gender, MyFunction $myFunction)
     {
         $this->shop = $shop;
         $this->prefecture = $prefecture;
+        $this->gender = $gender;
         $this->myFunction = $myFunction;
     }
     /**
@@ -43,10 +46,12 @@ class ShopsController extends Controller
         $order = $request->order ?? 'ASC';
         $shops = $this->shop->getShops((int)$id, (int)$page, (int)$limit, $orderby, $order);
         $prefectures = array_column($this->prefecture->getPrefectures()->toArray(), 'prefecture', 'id');
+        $genders = array_column($this->gender->getGenders()->toArray(), 'gender', 'id');
         $shops = $this->myFunction->changeArrayKeyCamel($shops->toArray());
         $count = $this->shop->getShopsCount();
         foreach ($shops as $index => $shop) {
             $shops[$index]['prefecture'] = $prefectures[$shop['prefectureId']];
+            $shops[$index]['gender'] = $genders[$shop['genderId']];
             $shops[$index]['imageUrl'] = empty($shop['imageUrl']) ? '' : Storage::disk('s3')->url($shop['imageUrl']);
         }
         return [
@@ -66,6 +71,7 @@ class ShopsController extends Controller
         $shop = [
             'name' => $request->input('name'),
             'prefectureId' => $request->input('prefectureId'),
+            'genderId' => $request->input('genderId'),
             'city' => $request->input('city') ?? '',
             'address' => $request->input('address') ?? '',
             'building' => $request->input('building') ?? '',
@@ -91,6 +97,7 @@ class ShopsController extends Controller
         return Validator::make($shop, [
             'name' => 'required|max:50',
             'prefectureId' => 'required|integer',
+            'genderId' => 'required|integer',
             'city' => 'max:50',
             'address' => 'max:50',
             'building' => 'max:50',
@@ -127,6 +134,8 @@ class ShopsController extends Controller
         $shop = $this->myFunction->changeArrayKeyCamel($shop);
         $prefecture = $this->prefecture->getPrefecture($shop['prefectureId'])->toArray();
         $shop['prefecture'] = $prefecture['prefecture'];
+        $gender= $this->gender->getGender($shop['genderId'])->toArray();
+        $shop['gender'] = $gender['gender'];
         $shop['imageUrl'] = empty($shop['imageUrl']) ? '' : Storage::disk('s3')->url($shop['imageUrl']);
         return $shop;
     }
@@ -154,6 +163,7 @@ class ShopsController extends Controller
         $shop = [
             'name' => $request->input('name'),
             'prefectureId' => $request->input('prefectureId'),
+            'genderId' => $request->input('genderId'),
             'city' => $request->input('city') ?? '',
             'address' => $request->input('address') ?? '',
             'building' => $request->input('building') ?? '',
