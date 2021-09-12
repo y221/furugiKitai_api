@@ -50,11 +50,6 @@ class Shop extends Model
         }
     }
 
-    public function genders()
-    {
-        return $this->hasOne(Gender::class);
-    }
-
     public function insertShop(array $shop)
     {
         $this->name = $shop['name'];
