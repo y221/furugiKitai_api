@@ -22,7 +22,6 @@ class Shop extends Model
         $query->select('shops.*', 'prefectures.prefecture', 'genders.gender');
         $query->leftJoin('prefectures', 'shops.prefecture_id', '=', 'prefectures.id');
         $query->leftJoin('genders', 'shops.gender_id', '=', 'genders.id');
-        if (!empty($id)) $query->where('shops.id', $id);
         if (!empty($prefectureIds)) $query->whereIn('prefecture_id', $prefectureIds);
         $query->offset($offset)->limit($limit)->orderby($orderby, $order);
         return $query->get();
