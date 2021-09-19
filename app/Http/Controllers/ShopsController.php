@@ -39,20 +39,15 @@ class ShopsController extends Controller
      */
     public function index(Request $request)
     {
-        $id = $request->id ?? 0;
         $prefectureIds = $request->prefectureIds ?? [];
         $page = $request->page ?? 1;
         $limit = $request->limit ?? 1;
         $orderby = $request->orderby ?? 'id';
         $order = $request->order ?? 'ASC';
-        $shops = $this->shop->getShops((int)$id, (array)$prefectureIds, (int)$page, (int)$limit, $orderby, $order);
-        $prefectures = array_column($this->prefecture->getPrefectures()->toArray(), 'prefecture', 'id');
-        $genders = array_column($this->gender->getGenders()->toArray(), 'gender', 'id');
+        $shops = $this->shop->getShops((array)$prefectureIds, (int)$page, (int)$limit, $orderby, $order);
         $shops = $this->myFunction->changeArrayKeyCamel($shops->toArray());
         $count = $this->shop->getShopsCount();
         foreach ($shops as $index => $shop) {
-            $shops[$index]['prefecture'] = $prefectures[$shop['prefectureId']];
-            $shops[$index]['gender'] = $genders[$shop['genderId']];
             $shops[$index]['imageUrl'] = empty($shop['imageUrl']) ? '' : Storage::disk('s3')->url($shop['imageUrl']);
         }
         return [

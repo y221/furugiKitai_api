@@ -8,18 +8,21 @@ class Shop extends Model
     /**
      * ショップ取得
      *
-     * @param int $id
+     * @param array $prefectureIds
      * @param int $page
      * @param int $limit
      * @param string $orderby
      * @param string $order
      * @return object
      */
-    public function getShops(int $id, array $prefectureIds, int $page, int $limit, string $orderby = 'id', string $order = 'ASC')
+    public function getShops(array $prefectureIds, int $page, int $limit, string $orderby = 'id', string $order = 'ASC')
     {
         $offset = $limit * ($page - 1);
         $query = $this->newQuery();
-        if (!empty($id)) $query->where('id', $id);
+        $query->select('shops.*', 'prefectures.prefecture', 'genders.gender');
+        $query->leftJoin('prefectures', 'shops.prefecture_id', '=', 'prefectures.id');
+        $query->leftJoin('genders', 'shops.gender_id', '=', 'genders.id');
+        if (!empty($id)) $query->where('shops.id', $id);
         if (!empty($prefectureIds)) $query->whereIn('prefecture_id', $prefectureIds);
         $query->offset($offset)->limit($limit)->orderby($orderby, $order);
         return $query->get();
