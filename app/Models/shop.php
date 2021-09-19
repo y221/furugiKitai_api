@@ -15,16 +15,14 @@ class Shop extends Model
      * @param string $order
      * @return object
      */
-    public function getShops(int $id, int $page, int $limit, string $orderby = 'id', string $order = 'ASC')
+    public function getShops(int $id, array $prefectureIds, int $page, int $limit, string $orderby = 'id', string $order = 'ASC')
     {
         $offset = $limit * ($page - 1);
-        return $this
-            ->ofValues('id', $id)
-            ->ofValues('id', $id)
-            ->offset($offset)
-            ->limit($limit)
-            ->orderby($orderby, $order)
-            ->get();
+        $query = $this->newQuery();
+        if (!empty($id)) $query->where('id', $id);
+        if (!empty($prefectureIds)) $query->whereIn('prefecture_id', $prefectureIds);
+        $query->offset($offset)->limit($limit)->orderby($orderby, $order);
+        return $query->get();
     }
 
     /**
@@ -41,13 +39,6 @@ class Shop extends Model
     public function getShopsCount()
     {
         return $this->count();
-    }
-
-    public function scopeOfValues($query, $key, $value)
-    {
-        if (!empty($value)) {
-            return $query->where($key, $value);
-        }
     }
 
     public function insertShop(array $shop)
