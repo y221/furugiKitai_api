@@ -85,7 +85,7 @@ class ShopsController extends Controller
         $shop['longitude'] = $location['lng'] ?? null;
         $image = $request->file('mainImage') ?? '';
         $shop['imageUrl'] = empty($image) ? '' : Storage::disk('s3')->put('shop_images', $image, 'public');
-        $this->shop->insertShop($shop);
+        $this->shop->insertShop($this->myFunction->changeArrayKeySnake($shop));
         return ['msg' => '登録処理が完了しました'];
     }
 
@@ -109,7 +109,8 @@ class ShopsController extends Controller
             }
         }
         $prefectures = array_column($this->prefecture->getPrefectures()->toArray(), 'prefecture', 'id');
-        $address = "{$prefectures[$formShop['prefectureId']]}{$formShop['city']}{$formShop['address']}{$formShop['building']}";
+        $building = $formShop['building'] ?? '';
+        $address = "{$prefectures[$formShop['prefectureId']]}{$formShop['city']}{$formShop['address']}{$building}";
         $client = new \GuzzleHttp\Client();
         $response = $client->request(
             'GET',
@@ -186,7 +187,7 @@ class ShopsController extends Controller
         if ($this->checkImageUpdated($image, $registeredShop['imageUrl'])) {
             $shop['imageUrl'] = Storage::disk('s3')->put('shop_images', $image, 'public');
         }
-        $this->shop->updateShop($id, $shop);
+        $this->shop->updateShop($id, $this->myFunction->changeArrayKeySnake($shop));
         return ['msg' => '更新処理が完了しました'];
     }
 

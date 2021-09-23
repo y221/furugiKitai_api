@@ -6,7 +6,7 @@
     'aliases' => 
     array (
     ),
-    'reference' => '632392c4439063613f7c95be75c2c62b0a2919c9',
+    'reference' => '8b9925d0aeb887d7848fda3f8918025358f2ad3e',
     'name' => 'laravel/laravel',
   ),
   'versions' => 
@@ -38,6 +38,15 @@
       ),
       'reference' => 'dff976c2f3487d42c1db75a3b180e2b9f0e72ce0',
     ),
+    'composer/package-versions-deprecated' => 
+    array (
+      'pretty_version' => '1.11.99.4',
+      'version' => '1.11.99.4',
+      'aliases' => 
+      array (
+      ),
+      'reference' => 'b174585d1fe49ceed21928a945138948cb394600',
+    ),
     'cordoval/hamcrest-php' => 
     array (
       'replaced' => 
@@ -60,6 +69,42 @@
       array (
       ),
       'reference' => '8f8a6e48c5ecb0f991c2fdcf5f154a47d85f9ffd',
+    ),
+    'doctrine/cache' => 
+    array (
+      'pretty_version' => '2.1.1',
+      'version' => '2.1.1.0',
+      'aliases' => 
+      array (
+      ),
+      'reference' => '331b4d5dbaeab3827976273e9356b3b453c300ce',
+    ),
+    'doctrine/dbal' => 
+    array (
+      'pretty_version' => '3.1.2',
+      'version' => '3.1.2.0',
+      'aliases' => 
+      array (
+      ),
+      'reference' => '3ee2622b57370c786f531678f6641208747f7bfc',
+    ),
+    'doctrine/deprecations' => 
+    array (
+      'pretty_version' => 'v0.5.3',
+      'version' => '0.5.3.0',
+      'aliases' => 
+      array (
+      ),
+      'reference' => '9504165960a1f83cc1480e2be1dd0a0478561314',
+    ),
+    'doctrine/event-manager' => 
+    array (
+      'pretty_version' => '1.1.1',
+      'version' => '1.1.1.0',
+      'aliases' => 
+      array (
+      ),
+      'reference' => '41370af6a30faa9dc0368c4a6814d596e81aba7f',
     ),
     'doctrine/inflector' => 
     array (
@@ -454,7 +499,7 @@
       'aliases' => 
       array (
       ),
-      'reference' => '632392c4439063613f7c95be75c2c62b0a2919c9',
+      'reference' => '8b9925d0aeb887d7848fda3f8918025358f2ad3e',
     ),
     'laravel/sail' => 
     array (
@@ -583,6 +628,13 @@
       array (
       ),
       'reference' => 'aca63581f380f63a492b1e3114604e411e39133a',
+    ),
+    'ocramius/package-versions' => 
+    array (
+      'replaced' => 
+      array (
+        0 => '1.11.99',
+      ),
     ),
     'opis/closure' => 
     array (
