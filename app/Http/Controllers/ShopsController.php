@@ -91,21 +91,20 @@ class ShopsController extends Controller
         $result = $this->shop->insertShop($shop);
     }
 
-    private function getLocation(array $shop, array $defaultShop)
+    private function getLocation(array $formShop, array $registeredShop)
     {
-        if (!empty($defaultShop)) {
-            $isCitySame = $shop['city'] === $defaultShop['city'];
-            $isAddressSame = $shop['address'] === $defaultShop['address'];
-            $isBuildingSame = $shop['building'] === $defaultShop['building'];
-            if ($isCitySame && $isAddressSame && $isBuildingSame) {
+        if (!empty($registeredShop)) {
+            if ($formShop['city'] === $registeredShop['city']
+            && $formShop['address'] === $registeredShop['address']
+            && $formShop['building'] === $registeredShop['building']) {
                 return [
-                    'lat' => $defaultShop['latitude'],
-                    'lng' => $defaultShop['longitude']
+                    'lat' => $registeredShop['latitude'],
+                    'lng' => $registeredShop['longitude']
                 ];
             }
         }
         $prefectures = array_column($this->prefecture->getPrefectures()->toArray(), 'prefecture', 'id');
-        $address = "{$prefectures[$shop['prefectureId']]}{$shop['city']}{$shop['address']}{$shop['building']}";
+        $address = "{$prefectures[$formShop['prefectureId']]}{$formShop['city']}{$formShop['address']}{$formShop['building']}";
         $client = new \GuzzleHttp\Client();
         $response = $client->request(
             'GET',
@@ -204,13 +203,13 @@ class ShopsController extends Controller
         if ($validator->fails()) {
             return ['errors' => $validator->errors()];
         }
-        $defaultShop = $this->myFunction->changeArrayKeyCamel($this->shop->getShop($id)->toArray());
-        $location = $this->getLocation($shop, $defaultShop);
+        $registeredShop = $this->myFunction->changeArrayKeyCamel($this->shop->getShop($id)->toArray());
+        $location = $this->getLocation($shop, $registeredShop);
         $shop['latitude'] = $location['lat'] ?? null;
         $shop['longitude'] = $location['lng'] ?? null;
         $image = $request->file('mainImage') ?? '';
-        $shop['imageUrl'] = $defaultShop['imageUrl'];
-        if ($this->checkImageUpdated($image, $defaultShop['imageUrl'])) {
+        $shop['imageUrl'] = $registeredShop['imageUrl'];
+        if ($this->checkImageUpdated($image, $registeredShop['imageUrl'])) {
             $shop['imageUrl'] = Storage::disk('s3')->put('shop_images', $image, 'public');
         }
         $this->shop->updateShop($id, $shop);
