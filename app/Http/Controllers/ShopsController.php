@@ -17,6 +17,19 @@ class ShopsController extends Controller
     protected $gender;
     protected $myFunction;
 
+    const SHOP_VALIDATE_RULE = [
+        'name' => 'required|max:50',
+        'prefectureId' => 'required|integer',
+        'genderId' => 'required|integer',
+        'city' => 'required|max:50',
+        'address' => 'required|max:50',
+        'building' => 'required|max:50',
+        'access' => 'max:50',
+        'phoneNumber' => 'max:50',
+        'instagramUrl' => 'max:50',
+        'holiday' => 'max:50',
+        'businessHour' => 'max:200',
+    ];
     /**
      * DI
      *
@@ -64,31 +77,15 @@ class ShopsController extends Controller
      */
     public function create(Request $request) :array
     {
-        $shop = [
-            'name' => $request->input('name'),
-            'prefectureId' => $request->input('prefectureId'),
-            'genderId' => $request->input('genderId'),
-            'city' => $request->input('city') ?? '',
-            'address' => $request->input('address') ?? '',
-            'building' => $request->input('building') ?? '',
-            'latitude' => $request->input('latitude'),
-            'longitude' => $request->input('longitude'),
-            'access' => $request->input('access') ?? '',
-            'phoneNumber' => $request->input('phoneNumber') ?? '',
-            'instagramUrl' => $request->input('instagramUrl') ?? '',
-            'holiday' => $request->input('holiday') ?? '',
-            'businessHour' => $request->input('businessHour') ?? '',
-        ];
-        $validator = $this->setValidator($shop);
-        if ($validator->fails()) {
-            return ['errors' => $validator->errors()];
-        }
+        $validator = Validator::make($request->input(), self::SHOP_VALIDATE_RULE);
+        if ($validator->fails()) return ['errors' => $validator->errors()];
+        $shop = $validator->validated();
         $location = $this->getLocation($shop, []);
         $shop['latitude'] = $location['lat'] ?? null;
         $shop['longitude'] = $location['lng'] ?? null;
         $image = $request->file('mainImage') ?? '';
         $shop['imageUrl'] = empty($image) ? '' : Storage::disk('s3')->put('shop_images', $image, 'public');
-        $this->shop->insertShop($shop);
+        $this->shop->insertShop($this->myFunction->changeArrayKeySnake($shop));
         return ['msg' => '登録処理が完了しました'];
     }
 
@@ -112,7 +109,8 @@ class ShopsController extends Controller
             }
         }
         $prefectures = array_column($this->prefecture->getPrefectures()->toArray(), 'prefecture', 'id');
-        $address = "{$prefectures[$formShop['prefectureId']]}{$formShop['city']}{$formShop['address']}{$formShop['building']}";
+        $building = $formShop['building'] ?? '';
+        $address = "{$prefectures[$formShop['prefectureId']]}{$formShop['city']}{$formShop['address']}{$building}";
         $client = new \GuzzleHttp\Client();
         $response = $client->request(
             'GET',
@@ -126,29 +124,6 @@ class ShopsController extends Controller
         );
         $array = json_decode($response->getBody(), true);
         return $array['results'][0]['geometry']['location'] ?? [];
-    }
-
-    /**
-     * バリデーションオブジェクト生成
-     *
-     * @param array $shop
-     * @return object
-     */
-    private function setValidator(array $shop) :object
-    {
-        return Validator::make($shop, [
-            'name' => 'required|max:50',
-            'prefectureId' => 'required|integer',
-            'genderId' => 'required|integer',
-            'city' => 'required|max:50',
-            'address' => 'required|max:50',
-            'building' => 'required|max:50',
-            'access' => 'max:50',
-            'phoneNumber' => 'max:50',
-            'instagramUrl' => 'max:50',
-            'holiday' => 'max:50',
-            'businessHour' => 'max:200',
-        ]);
     }
 
     /**
@@ -200,23 +175,9 @@ class ShopsController extends Controller
      */
     public function update(Request $request, int $id) :array
     {
-        $shop = [
-            'name' => $request->input('name'),
-            'prefectureId' => $request->input('prefectureId'),
-            'genderId' => $request->input('genderId'),
-            'city' => $request->input('city') ?? '',
-            'address' => $request->input('address') ?? '',
-            'building' => $request->input('building') ?? '',
-            'access' => $request->input('access') ?? '',
-            'phoneNumber' => $request->input('phoneNumber') ?? '',
-            'instagramUrl' => $request->input('instagramUrl') ?? '',
-            'holiday' => $request->input('holiday') ?? '',
-            'businessHour' => $request->input('businessHour') ?? '',
-        ];
-        $validator = $this->setValidator($shop);
-        if ($validator->fails()) {
-            return ['errors' => $validator->errors()];
-        }
+        $validator = Validator::make($request->input(), self::SHOP_VALIDATE_RULE);
+        if ($validator->fails()) return ['errors' => $validator->errors()];
+        $shop = $validator->validated();
         $registeredShop = $this->myFunction->changeArrayKeyCamel($this->shop->getShop($id)->toArray());
         $location = $this->getLocation($shop, $registeredShop);
         $shop['latitude'] = $location['lat'] ?? null;
@@ -226,7 +187,7 @@ class ShopsController extends Controller
         if ($this->checkImageUpdated($image, $registeredShop['imageUrl'])) {
             $shop['imageUrl'] = Storage::disk('s3')->put('shop_images', $image, 'public');
         }
-        $this->shop->updateShop($id, $shop);
+        $this->shop->updateShop($id, $this->myFunction->changeArrayKeySnake($shop));
         return ['msg' => '更新処理が完了しました'];
     }
 

@@ -18,4 +18,13 @@ class MyFunction
         }
         return $arrayKeyCamel;
     }
+
+    public static function changeArrayKeySnake(array $target) :array
+    {
+        $arrayKeySnake = [];
+        foreach($target as $key => $value) {
+            $arrayKeySnake[str::snake($key)] = is_array($value) ? self::changeArrayKeySnake($value) : $value;
+        }
+        return $arrayKeySnake;
+    }
 }

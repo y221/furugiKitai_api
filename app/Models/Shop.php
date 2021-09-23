@@ -5,6 +5,22 @@ use Illuminate\Database\Eloquent\Model;
 
 class Shop extends Model
 {
+    protected $fillable = [
+        'name',
+        'prefecture_id',
+        'gender_id',
+        'city',
+        'address',
+        'building',
+        'latitude',
+        'longitude',
+        'access',
+        'phone_number',
+        'instagram_url',
+        'holiday',
+        'business_hour',
+        'image_url'
+    ];
     /**
      * ショップ取得
      *
@@ -34,7 +50,7 @@ class Shop extends Model
      * @param integer $id
      * @return object
      */
-    public function getShop(int $id)
+    public function getShop(int $id) :object
     {
         return $this->find($id);
     }
@@ -52,45 +68,27 @@ class Shop extends Model
         return $query->count();
     }
 
-    public function insertShop(array $shop)
+    /**
+     * 登録
+     *
+     * @param array $shop
+     * @return void
+     */
+    public function insertShop(array $shop) :void
     {
-        $this->name = $shop['name'];
-        $this->prefecture_id = $shop['prefectureId'];
-        $this->gender_id = $shop['genderId'];
-        $this->city = $shop['city'];
-        $this->address = $shop['address'];
-        $this->building = $shop['building'];
-        $this->latitude = $shop['latitude'];
-        $this->longitude = $shop['longitude'];
-        $this->access = $shop['access'];
-        $this->phone_number = $shop['phoneNumber'];
-        $this->instagram_url = $shop['instagramUrl'];
-        $this->holiday = $shop['holiday'];
-        $this->business_hour = $shop['businessHour'];
-        $this->image_url = $shop['imageUrl'];
-        $this->created_user_id = 0;
-        return $this->save();
+        $this->fill($shop)->save();
     }
 
-    public function updateShop(int $id, array $request) {
-        $this->where('id', $id)->update([
-            'name' => $request['name'],
-            'prefecture_id' => $request['prefectureId'],
-            'gender_id' => $request['genderId'],
-            'city' => $request['city'],
-            'address' => $request['address'],
-            'building' => $request['building'],
-            'latitude' => $request['latitude'],
-            'longitude' => $request['longitude'],
-            'access' => $request['access'],
-            'phone_number' => $request['phoneNumber'],
-            'instagram_url' => $request['instagramUrl'],
-            'holiday' => $request['holiday'],
-            'business_hour' => $request['businessHour'],
-            'image_url' => $request['imageUrl'],
-            'updated_user_id' => 0,
-        ]);
-        
+    /**
+     * 更新
+     *
+     * @param integer $id
+     * @param array $shop
+     * @return void
+     */
+    public function updateShop(int $id, array $shop) :void
+    {
+        $this->find($id)->fill($shop)->save();
     }
 
 }
