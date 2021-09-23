@@ -37,7 +37,7 @@ class ShopsController extends Controller
      * @param Request $request
      * @return array
      */
-    public function index(Request $request)
+    public function index(Request $request) :array
     {
         $prefectureIds = $request->prefectureIds ?? [];
         $page = $request->page ?? 1;
@@ -62,7 +62,7 @@ class ShopsController extends Controller
      * @param Request $request
      * @return array
      */
-    public function create(Request $request)
+    public function create(Request $request) :array
     {
         $shop = [
             'name' => $request->input('name'),
@@ -88,10 +88,18 @@ class ShopsController extends Controller
         $shop['longitude'] = $location['lng'] ?? null;
         $image = $request->file('mainImage') ?? '';
         $shop['imageUrl'] = empty($image) ? '' : Storage::disk('s3')->put('shop_images', $image, 'public');
-        $result = $this->shop->insertShop($shop);
+        $this->shop->insertShop($shop);
+        return ['msg' => '登録処理が完了しました'];
     }
 
-    private function getLocation(array $formShop, array $registeredShop)
+    /**
+     *  緯度軽度取得
+     *
+     * @param array $formShop
+     * @param array $registeredShop
+     * @return array
+     */
+    private function getLocation(array $formShop, array $registeredShop) :array
     {
         if (!empty($registeredShop)) {
             if ($formShop['city'] === $registeredShop['city']
@@ -120,7 +128,13 @@ class ShopsController extends Controller
         return $array['results'][0]['geometry']['location'] ?? [];
     }
 
-    private function setValidator($shop)
+    /**
+     * バリデーションオブジェクト生成
+     *
+     * @param array $shop
+     * @return object
+     */
+    private function setValidator(array $shop) :object
     {
         return Validator::make($shop, [
             'name' => 'required|max:50',
@@ -152,9 +166,9 @@ class ShopsController extends Controller
      * Display the specified resource.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return array
      */
-    public function show($id)
+    public function show(int $id) :array
     {
         $shop = $this->shop->getShop($id)->toArray();
         $shop = $this->myFunction->changeArrayKeyCamel($shop);
@@ -182,9 +196,9 @@ class ShopsController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return array
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id) :array
     {
         $shop = [
             'name' => $request->input('name'),
@@ -213,6 +227,7 @@ class ShopsController extends Controller
             $shop['imageUrl'] = Storage::disk('s3')->put('shop_images', $image, 'public');
         }
         $this->shop->updateShop($id, $shop);
+        return ['msg' => '更新処理が完了しました'];
     }
 
     /**
@@ -220,13 +235,13 @@ class ShopsController extends Controller
      *
      * @param string $imageUrl
      * @param string $defaultImageUrl
-     * @return boolean
+     * @return bool
      */
-    private function checkImageUpdated($imageUrl, $defaultImageUrl)
+    private function checkImageUpdated(string $imageUrl, string $registeredImageUrl) :bool
     {
         if (empty($imageUrl)) return false;
-        if (!empty($imageUrl) && empty($defaultImageUrl)) return true;
-        $image = Storage::disk('s3')->url($defaultImageUrl);
+        if (!empty($imageUrl) && empty($registeredImageUrl)) return true;
+        $image = Storage::disk('s3')->url($registeredImageUrl);
         return $imageUrl !== $image;
     }
 
