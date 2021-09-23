@@ -37,7 +37,7 @@ class ShopsController extends Controller
      * @param Request $request
      * @return array
      */
-    public function index(Request $request)
+    public function index(Request $request) :array
     {
         $prefectureIds = $request->prefectureIds ?? [];
         $page = $request->page ?? 1;
@@ -62,7 +62,7 @@ class ShopsController extends Controller
      * @param Request $request
      * @return array
      */
-    public function create(Request $request)
+    public function create(Request $request) :array
     {
         $shop = [
             'name' => $request->input('name'),
@@ -83,22 +83,66 @@ class ShopsController extends Controller
         if ($validator->fails()) {
             return ['errors' => $validator->errors()];
         }
+        $location = $this->getLocation($shop, []);
+        $shop['latitude'] = $location['lat'] ?? null;
+        $shop['longitude'] = $location['lng'] ?? null;
         $image = $request->file('mainImage') ?? '';
         $shop['imageUrl'] = empty($image) ? '' : Storage::disk('s3')->put('shop_images', $image, 'public');
-        $result = $this->shop->insertShop($shop);
+        $this->shop->insertShop($shop);
+        return ['msg' => '登録処理が完了しました'];
     }
 
-    private function setValidator($shop)
+    /**
+     *  緯度軽度取得
+     *
+     * @param array $formShop
+     * @param array $registeredShop
+     * @return array
+     */
+    private function getLocation(array $formShop, array $registeredShop) :array
+    {
+        if (!empty($registeredShop)) {
+            if ($formShop['city'] === $registeredShop['city']
+            && $formShop['address'] === $registeredShop['address']
+            && $formShop['building'] === $registeredShop['building']) {
+                return [
+                    'lat' => $registeredShop['latitude'],
+                    'lng' => $registeredShop['longitude']
+                ];
+            }
+        }
+        $prefectures = array_column($this->prefecture->getPrefectures()->toArray(), 'prefecture', 'id');
+        $address = "{$prefectures[$formShop['prefectureId']]}{$formShop['city']}{$formShop['address']}{$formShop['building']}";
+        $client = new \GuzzleHttp\Client();
+        $response = $client->request(
+            'GET',
+            'https://maps.googleapis.com/maps/api/geocode/json',
+            [
+                'query' => [
+                    'address' => $address,
+                    'key' => env('GOOGLE_API_KEY')
+                ]
+            ]
+        );
+        $array = json_decode($response->getBody(), true);
+        return $array['results'][0]['geometry']['location'] ?? [];
+    }
+
+    /**
+     * バリデーションオブジェクト生成
+     *
+     * @param array $shop
+     * @return object
+     */
+    private function setValidator(array $shop) :object
     {
         return Validator::make($shop, [
             'name' => 'required|max:50',
             'prefectureId' => 'required|integer',
             'genderId' => 'required|integer',
-            'city' => 'max:50',
-            'address' => 'max:50',
-            'building' => 'max:50',
-            'latitude' => 'numeric|nullable',
-            'longitude' => 'numeric|nullable',
+            'city' => 'required|max:50',
+            'address' => 'required|max:50',
+            'building' => 'required|max:50',
             'access' => 'max:50',
             'phoneNumber' => 'max:50',
             'instagramUrl' => 'max:50',
@@ -122,9 +166,9 @@ class ShopsController extends Controller
      * Display the specified resource.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return array
      */
-    public function show($id)
+    public function show(int $id) :array
     {
         $shop = $this->shop->getShop($id)->toArray();
         $shop = $this->myFunction->changeArrayKeyCamel($shop);
@@ -152,9 +196,9 @@ class ShopsController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return array
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id) :array
     {
         $shop = [
             'name' => $request->input('name'),
@@ -163,8 +207,6 @@ class ShopsController extends Controller
             'city' => $request->input('city') ?? '',
             'address' => $request->input('address') ?? '',
             'building' => $request->input('building') ?? '',
-            'latitude' => $request->input('latitude'),
-            'longitude' => $request->input('longitude'),
             'access' => $request->input('access') ?? '',
             'phoneNumber' => $request->input('phoneNumber') ?? '',
             'instagramUrl' => $request->input('instagramUrl') ?? '',
@@ -175,13 +217,17 @@ class ShopsController extends Controller
         if ($validator->fails()) {
             return ['errors' => $validator->errors()];
         }
-        $defaultShop = $this->myFunction->changeArrayKeyCamel($this->shop->getShop($id)->toArray());
+        $registeredShop = $this->myFunction->changeArrayKeyCamel($this->shop->getShop($id)->toArray());
+        $location = $this->getLocation($shop, $registeredShop);
+        $shop['latitude'] = $location['lat'] ?? null;
+        $shop['longitude'] = $location['lng'] ?? null;
         $image = $request->file('mainImage') ?? '';
-        $shop['imageUrl'] = $defaultShop['imageUrl'];
-        if ($this->checkImageUpdated($image, $defaultShop['imageUrl'])) {
+        $shop['imageUrl'] = $registeredShop['imageUrl'];
+        if ($this->checkImageUpdated($image, $registeredShop['imageUrl'])) {
             $shop['imageUrl'] = Storage::disk('s3')->put('shop_images', $image, 'public');
         }
         $this->shop->updateShop($id, $shop);
+        return ['msg' => '更新処理が完了しました'];
     }
 
     /**
@@ -189,13 +235,13 @@ class ShopsController extends Controller
      *
      * @param string $imageUrl
      * @param string $defaultImageUrl
-     * @return boolean
+     * @return bool
      */
-    private function checkImageUpdated($imageUrl, $defaultImageUrl)
+    private function checkImageUpdated(string $imageUrl, string $registeredImageUrl) :bool
     {
         if (empty($imageUrl)) return false;
-        if (!empty($imageUrl) && empty($defaultImageUrl)) return true;
-        $image = Storage::disk('s3')->url($defaultImageUrl);
+        if (!empty($imageUrl) && empty($registeredImageUrl)) return true;
+        $image = Storage::disk('s3')->url($registeredImageUrl);
         return $imageUrl !== $image;
     }
 
