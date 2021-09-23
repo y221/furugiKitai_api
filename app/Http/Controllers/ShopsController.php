@@ -77,23 +77,9 @@ class ShopsController extends Controller
      */
     public function create(Request $request) :array
     {
-        $shop = [
-            'name' => $request->input('name'),
-            'prefectureId' => $request->input('prefectureId'),
-            'genderId' => $request->input('genderId'),
-            'city' => $request->input('city') ?? '',
-            'address' => $request->input('address') ?? '',
-            'building' => $request->input('building') ?? '',
-            'access' => $request->input('access') ?? '',
-            'phoneNumber' => $request->input('phoneNumber') ?? '',
-            'instagramUrl' => $request->input('instagramUrl') ?? '',
-            'holiday' => $request->input('holiday') ?? '',
-            'businessHour' => $request->input('businessHour') ?? '',
-        ];
-        $validator = Validator::make($shop, self::SHOP_VALIDATE_RULE);
-        if ($validator->fails()) {
-            return ['errors' => $validator->errors()];
-        }
+        $validator = Validator::make($request->input(), self::SHOP_VALIDATE_RULE);
+        if ($validator->fails()) return ['errors' => $validator->errors()];
+        $shop = $validator->validated();
         $location = $this->getLocation($shop, []);
         $shop['latitude'] = $location['lat'] ?? null;
         $shop['longitude'] = $location['lng'] ?? null;
@@ -188,23 +174,9 @@ class ShopsController extends Controller
      */
     public function update(Request $request, int $id) :array
     {
-        $shop = [
-            'name' => $request->input('name'),
-            'prefectureId' => $request->input('prefectureId'),
-            'genderId' => $request->input('genderId'),
-            'city' => $request->input('city') ?? '',
-            'address' => $request->input('address') ?? '',
-            'building' => $request->input('building') ?? '',
-            'access' => $request->input('access') ?? '',
-            'phoneNumber' => $request->input('phoneNumber') ?? '',
-            'instagramUrl' => $request->input('instagramUrl') ?? '',
-            'holiday' => $request->input('holiday') ?? '',
-            'businessHour' => $request->input('businessHour') ?? '',
-        ];
-        $validator = Validator::make($shop, self::SHOP_VALIDATE_RULE);
-        if ($validator->fails()) {
-            return ['errors' => $validator->errors()];
-        }
+        $validator = Validator::make($request->input(), self::SHOP_VALIDATE_RULE);
+        if ($validator->fails()) return ['errors' => $validator->errors()];
+        $shop = $validator->validated();
         $registeredShop = $this->myFunction->changeArrayKeyCamel($this->shop->getShop($id)->toArray());
         $location = $this->getLocation($shop, $registeredShop);
         $shop['latitude'] = $location['lat'] ?? null;
