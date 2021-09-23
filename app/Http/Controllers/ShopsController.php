@@ -200,11 +200,11 @@ class ShopsController extends Controller
             'holiday' => $request->input('holiday') ?? '',
             'businessHour' => $request->input('businessHour') ?? '',
         ];
-        $defaultShop = $this->myFunction->changeArrayKeyCamel($this->shop->getShop($id)->toArray());
         $validator = $this->setValidator($shop);
         if ($validator->fails()) {
             return ['errors' => $validator->errors()];
         }
+        $defaultShop = $this->myFunction->changeArrayKeyCamel($this->shop->getShop($id)->toArray());
         $location = $this->getLocation($shop, $defaultShop);
         $shop['latitude'] = $location['lat'] ?? null;
         $shop['longitude'] = $location['lng'] ?? null;
