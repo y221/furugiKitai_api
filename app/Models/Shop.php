@@ -39,9 +39,17 @@ class Shop extends Model
         return $this->find($id);
     }
 
-    public function getShopsCount()
+    /**
+     * 店舗数カウント
+     *
+     * @param array $prefectureIds
+     * @return int
+     */
+    public function getShopsCount(array $prefectureIds) :int
     {
-        return $this->count();
+        $query = $this->newQuery();
+        if (!empty($prefectureIds)) $query->whereIn('prefecture_id', $prefectureIds);
+        return $query->count();
     }
 
     public function insertShop(array $shop)
