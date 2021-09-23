@@ -46,7 +46,7 @@ class ShopsController extends Controller
         $order = $request->order ?? 'ASC';
         $shops = $this->shop->getShops((array)$prefectureIds, (int)$page, (int)$limit, $orderby, $order);
         $shops = $this->myFunction->changeArrayKeyCamel($shops->toArray());
-        $count = $this->shop->getShopsCount();
+        $count = $this->shop->getShopsCount((array)$prefectureIds);
         foreach ($shops as $index => $shop) {
             $shops[$index]['imageUrl'] = empty($shop['imageUrl']) ? '' : Storage::disk('s3')->url($shop['imageUrl']);
         }
