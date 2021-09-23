@@ -17,6 +17,19 @@ class ShopsController extends Controller
     protected $gender;
     protected $myFunction;
 
+    const SHOP_VALIDATE_RULE = [
+        'name' => 'required|max:50',
+        'prefectureId' => 'required|integer',
+        'genderId' => 'required|integer',
+        'city' => 'required|max:50',
+        'address' => 'required|max:50',
+        'building' => 'required|max:50',
+        'access' => 'max:50',
+        'phoneNumber' => 'max:50',
+        'instagramUrl' => 'max:50',
+        'holiday' => 'max:50',
+        'businessHour' => 'max:200',
+    ];
     /**
      * DI
      *
@@ -71,15 +84,13 @@ class ShopsController extends Controller
             'city' => $request->input('city') ?? '',
             'address' => $request->input('address') ?? '',
             'building' => $request->input('building') ?? '',
-            'latitude' => $request->input('latitude'),
-            'longitude' => $request->input('longitude'),
             'access' => $request->input('access') ?? '',
             'phoneNumber' => $request->input('phoneNumber') ?? '',
             'instagramUrl' => $request->input('instagramUrl') ?? '',
             'holiday' => $request->input('holiday') ?? '',
             'businessHour' => $request->input('businessHour') ?? '',
         ];
-        $validator = $this->setValidator($shop);
+        $validator = Validator::make($shop, self::SHOP_VALIDATE_RULE);
         if ($validator->fails()) {
             return ['errors' => $validator->errors()];
         }
@@ -126,29 +137,6 @@ class ShopsController extends Controller
         );
         $array = json_decode($response->getBody(), true);
         return $array['results'][0]['geometry']['location'] ?? [];
-    }
-
-    /**
-     * バリデーションオブジェクト生成
-     *
-     * @param array $shop
-     * @return object
-     */
-    private function setValidator(array $shop) :object
-    {
-        return Validator::make($shop, [
-            'name' => 'required|max:50',
-            'prefectureId' => 'required|integer',
-            'genderId' => 'required|integer',
-            'city' => 'required|max:50',
-            'address' => 'required|max:50',
-            'building' => 'required|max:50',
-            'access' => 'max:50',
-            'phoneNumber' => 'max:50',
-            'instagramUrl' => 'max:50',
-            'holiday' => 'max:50',
-            'businessHour' => 'max:200',
-        ]);
     }
 
     /**
@@ -213,7 +201,7 @@ class ShopsController extends Controller
             'holiday' => $request->input('holiday') ?? '',
             'businessHour' => $request->input('businessHour') ?? '',
         ];
-        $validator = $this->setValidator($shop);
+        $validator = Validator::make($shop, self::SHOP_VALIDATE_RULE);
         if ($validator->fails()) {
             return ['errors' => $validator->errors()];
         }
