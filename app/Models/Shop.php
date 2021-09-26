@@ -5,22 +5,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Shop extends Model
 {
-    protected $fillable = [
-        'name',
-        'prefecture_id',
-        'gender_id',
-        'city',
-        'address',
-        'building',
-        'latitude',
-        'longitude',
-        'access',
-        'phone_number',
-        'instagram_url',
-        'holiday',
-        'business_hour',
-        'image_url'
-    ];
+    protected $guarded = [];
     /**
      * ショップ取得
      *
