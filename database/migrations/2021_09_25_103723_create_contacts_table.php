@@ -19,6 +19,7 @@ class CreateContactsTable extends Migration
             $table->string('email', 50);
             $table->string('content', 1000);
             $table->date('created_at');
+            $table->date('updated_at')->nullable();
         });
     }
 

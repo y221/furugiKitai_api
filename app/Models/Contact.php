@@ -10,4 +10,14 @@ class Contact extends Model
         'email',
         'content'
     ];
+    /**
+     * お問い合わせフォーム取得
+     *
+     * @param array $contact
+     * @return void
+     */
+    public function insertContact(array $contact) :void
+    {
+        $this->fill($contact)->save();
+    }
 }

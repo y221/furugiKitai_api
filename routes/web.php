@@ -24,5 +24,4 @@ Route::post('shops', 'ShopsController@create');
 Route::get('regions', 'RegionsController@index');
 Route::get('prefectures', 'PrefecturesController@index');
 Route::get('genders', 'GendersController@index');
-Route::get('contacts', 'ContactsController@create');
-Route::post('contacts', 'ContactsController@add');
+Route::post('contacts', 'ContactsController@create');
