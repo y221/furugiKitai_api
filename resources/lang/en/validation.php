@@ -39,7 +39,7 @@ return [
     'digits_between' => 'The :attribute must be between :min and :max digits.',
     'dimensions' => 'The :attribute has invalid image dimensions.',
     'distinct' => 'The :attribute field has a duplicate value.',
-    'email' => 'The :attribute must be a valid email address.',
+    'email' => '入力された :attribute は有効ではありません。',
     'ends_with' => 'The :attribute must end with one of the following: :values.',
     'exists' => 'The selected :attribute is invalid.',
     'file' => 'The :attribute must be a file.',
@@ -162,7 +162,9 @@ return [
         'instagram' => 'Instagram',
         'holiday' => '定休日',
         'businessHour' => '営業時間',
-        'imageUrl' => '画像'
+        'imageUrl' => '画像',
+        'email' => 'メールアドレス',
+        'content' => 'お問い合わせ内容'
     ],
 
 ];
