@@ -14,7 +14,7 @@ class ContactsController extends Controller
 
     const CONTACT_VALIDATE_RULE = [
         'name' => 'required|max:50',
-        'email' => ['required', 'email:strict,dns,spoof', 'max:50'],
+        'email' => ['required', 'email:strict,dns,spoof', 'max:250'],
         'content' => 'required|max:1000',
     ];
     /**
