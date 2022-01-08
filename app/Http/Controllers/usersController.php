@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\SnsCredential;
+use Exception;
 use Facade\FlareClient\Stacktrace\File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -25,7 +26,7 @@ class UsersController extends Controller
     /**
      * DI
      *
-     * @param User $shop
+     * @param User $user
      * @param SnsCredential $snsCredential
      * @return void
      */
@@ -59,21 +60,20 @@ class UsersController extends Controller
         $user = $validator->validated();
 
         // 画像ファイルをS3にアップロード
-        $fileName = time();
-        $image = file_get_contents($user["icon"]);
+        try {
+            $image = file_get_contents($user["icon"]);
+            
+            $fileName = time();
+            Storage::disk('s3')->put('user_images/'.$fileName, $image, 'public');
+            $s3Path = Storage::disk('s3')->url('user_images/'.$fileName);
 
-        Storage::disk('s3')->put('user_images/'.$fileName, $image, 'public');
-        $s3Path = Storage::disk('s3')->url('user_images/'.$fileName);
+        } catch(Exception $ex) {
+            return ['errors' => "icon画像が取得できませんでした"];
+        }
 
-        // userモデルに詰めて登録
-        $this->user->icon = $s3Path;
-        $this->user->name = $user["name"];
-        $this->user->insertUser();
-
-        // userに紐づくsns_credentialsを登録する
-        $this->snsCredential->uid = $uid;
-        $this->snsCredential->user_id = $this->user->id;
-        $this->snsCredential->insertLineCredential();
+        // DBに登録
+        $this->user->insertUser($s3Path, $user["name"]);
+        $this->snsCredential->insertLineCredential($this->user->id, $uid);
 
         // 登録したユーザー情報を返却する
         return $this->user;
