@@ -20,9 +20,17 @@ class SnsCredential extends Model
         return $this->where('uid', $uid)->first();
     }
 
-    public function insertLineCredential()
-    {
+    /**
+     *  SNS認証情報の新規登録
+     *
+     * @return bool 登録が成功したか否か
+     */
+    public function insertLineCredential(string $user_id, string $uid)
+    {   
+        $this->user_id = $user_id;
+        $this->uid = $uid;
         $this->provider = "line";
+
         return $this->save();
     }
 
