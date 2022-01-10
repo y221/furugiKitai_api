@@ -17,7 +17,7 @@ class User extends Model
      *  ユーザーをidで取得
      *
      * @param integer $id
-     * @return object
+     * @return User
      */
     public function getUser(int $id)
     {

@@ -44,12 +44,13 @@ class UsersController extends Controller
      */
     public function create(Request $request)
     {
-        // uidで検索し、既にサービス登録済みであればそのままリターン
+        // uidで検索し、既にサービス登録済みであれば既存のユーザー情報をリターン
         $uid = $request->input('uid');
         $snsCredential = $this->snsCredential->getSnsCredential($uid);
 
         if (isset($snsCredential)) {
-            return ['errors' => "既にサービス登録済みです"];
+            $existingUser = $this->user->getUser($snsCredential->user_id);
+            return $existingUser;
         }
 
         // バリデーション

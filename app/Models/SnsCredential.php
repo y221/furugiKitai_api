@@ -13,7 +13,7 @@ class SnsCredential extends Model
      * uidから取得
      *
      * @param string $uid
-     * @return object
+     * @return SnsCredential
      */
     public function getSnsCredential($uid)
     {
