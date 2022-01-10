@@ -86,14 +86,45 @@ class UsersController extends Controller
      * @param Request $request
      * @return array
      */
-    public function update(Request $request)
+    public function update(Request $request, int $id)
     {
+        // リクエストに含まれるuidで検索し、更新予定のユーザーに紐づいていなければエラー
+        $uid = $request->input('uid');
+        $snsCredential = $this->snsCredential->getSnsCredential($uid);
+
+        if (is_null($snsCredential) || $id != $snsCredential->user_id) {
+            return ['errors' => 'ユーザーが存在しません'];
+        }
+
         // バリデーション
-        // $validator = Validator::make($request->input(), self::USER_VALIDATE_RULE);
-        // if ($validator->fails()) {
-        //     return ['errors' => $validator->errors()];
-        // }
-        // $user = $validator->validated();
-        return "";
+        $validator = Validator::make($request->input(), self::USER_VALIDATE_RULE);
+        if ($validator->fails()) {
+            return ['errors' => $validator->errors()];
+        }
+        $validInput = $validator->validated();
+
+        // 画像ファイルをS3にアップロード
+        try {
+            $image = file_get_contents($validInput['icon']);
+            
+            $fileName = time();
+            Storage::disk('s3')->put('user_images/'.$fileName, $image, 'public');
+            $s3Path = Storage::disk('s3')->url('user_images/'.$fileName);
+
+        } catch(Exception $ex) {
+            return ['errors' => "icon画像が取得できませんでした"];
+        }
+
+        // DB更新
+        $user = $this->user->getUser($id);
+        $user->updateUser(
+            $s3Path,
+            $validInput['name'],
+            $validInput['favorite'],
+            $validInput['profile'],
+            $validInput['instagram']
+        );
+
+        return $user;
     }
 }

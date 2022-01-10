@@ -37,6 +37,28 @@ class User extends Model
         return $this->save();
     }
 
+    /**
+     *  ユーザー情報更新
+     *
+     * @return bool 登録が成功したか否か
+     */
+    public function updateUser(string $icon, string $name, ?string $favorite, ?string $profile, ?string $instagram)
+    {   
+        // 空のインスタンスで更新処理しようとしている場合はエラー
+        if (is_null($this->id)) {
+            return false;
+        }
+
+        // 値を詰めて更新
+        $this->icon = $icon;
+        $this->name = $name;
+        $this->favorite = $favorite;
+        $this->profile = $profile;
+        $this->instagram = $instagram;
+
+        return $this->save();
+    }
+
     public function snsCredential() {
         return $this->hasOne('App\Models\SnsCredential');
     }
