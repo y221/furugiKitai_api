@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddAreaIdToShopsTable extends Migration
+class CreateAreasTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,10 @@ class AddAreaIdToShopsTable extends Migration
      */
     public function up()
     {
-        Schema::table('shops', function (Blueprint $table) {
-            $table->integer('area_id')->after('prefecture_id')->default(1);
+        Schema::create('areas', function (Blueprint $table) {
+            $table->id();
+            $table->smallInteger('prefecture_id');
+            $table->string('area', 25);
         });
     }
 
@@ -25,8 +27,6 @@ class AddAreaIdToShopsTable extends Migration
      */
     public function down()
     {
-        Schema::table('shops', function (Blueprint $table) {
-            $table->dropColumn('area_id');
-        });
+        Schema::dropIfExists('areas');
     }
 }
