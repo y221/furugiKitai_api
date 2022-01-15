@@ -17,7 +17,7 @@ class User extends Model
      *  ユーザーをidで取得
      *
      * @param integer $id
-     * @return object
+     * @return User
      */
     public function getUser(int $id)
     {
@@ -26,15 +26,23 @@ class User extends Model
 
     /**
      *  ユーザー新規登録
-     *
+     * @param array $user カラム名 => 値のハッシュ
      * @return bool 登録が成功したか否か
      */
-    public function insertUser(string $icon, string $name)
-    {   
-        $this->icon = $icon;
-        $this->name = $name;
+    public function insertUser(array $user) :bool
+    {
+        return $this->fill($user)->save();
+    }
 
-        return $this->save();
+    /**
+     *  ユーザー情報更新
+     * @param int $id
+     * @param array $user カラム名 => 値のハッシュ
+     * @return bool 登録が成功したか否か
+     */
+    public function updateUser(int $id, array $user) :bool
+    {
+        return $this->find($id)->fill($user)->save();
     }
 
     public function snsCredential() {
