@@ -68,13 +68,20 @@ class UsersController extends Controller
             Storage::disk('s3')->put('user_images/'.$fileName, $image, 'public');
             $s3Path = Storage::disk('s3')->url('user_images/'.$fileName);
 
+            // ユーザー登録用のハッシュに詰める
+            $user["icon"] = "テスト";
+
         } catch(Exception $ex) {
             return ['errors' => "icon画像が取得できませんでした"];
         }
 
         // DBに登録
-        $this->user->insertUser($s3Path, $user["name"]);
-        $this->snsCredential->insertLineCredential($this->user->id, $uid);
+        $this->user->insertUser($user);
+
+        $this->snsCredential->insertLineCredential([
+            "user_id" => $this->user->id, 
+            "uid" => $uid
+        ]);
 
         // 登録したユーザー情報を返却する
         return $this->user;
@@ -101,29 +108,25 @@ class UsersController extends Controller
         if ($validator->fails()) {
             return ['errors' => $validator->errors()];
         }
-        $validInput = $validator->validated();
+        $user = $validator->validated();
 
         // 画像ファイルをS3にアップロード
         try {
-            $image = file_get_contents($validInput['icon']);
+            $image = file_get_contents($user['icon']);
             
             $fileName = time();
             Storage::disk('s3')->put('user_images/'.$fileName, $image, 'public');
             $s3Path = Storage::disk('s3')->url('user_images/'.$fileName);
+            
+            // ユーザー更新用のハッシュに詰める
+            $user["icon"] = $s3Path;
 
         } catch(Exception $ex) {
             return ['errors' => "icon画像が取得できませんでした"];
         }
 
         // DB更新
-        $user = $this->user->getUser($id);
-        $user->updateUser(
-            $s3Path,
-            $validInput['name'],
-            $validInput['favorite'],
-            $validInput['profile'],
-            $validInput['instagram']
-        );
+        $this->user->updateUser($id, $user);
 
         return $user;
     }

@@ -9,6 +9,12 @@ class SnsCredential extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'user_id',
+        'provider',
+        'uid'
+    ];
+
     /**
      * uidから取得
      *
@@ -22,16 +28,13 @@ class SnsCredential extends Model
 
     /**
      *  SNS認証情報の新規登録
-     *
+     * @param array $snsCred カラム名 => 値のハッシュ
      * @return bool 登録が成功したか否か
      */
-    public function insertLineCredential(string $user_id, string $uid)
+    public function insertLineCredential(array $snsCred) :bool
     {   
-        $this->user_id = $user_id;
-        $this->uid = $uid;
         $this->provider = "line";
-
-        return $this->save();
+        return $this->fill($snsCred)->save();
     }
 
     public function user() {

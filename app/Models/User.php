@@ -26,37 +26,23 @@ class User extends Model
 
     /**
      *  ユーザー新規登録
-     *
+     * @param array $user カラム名 => 値のハッシュ
      * @return bool 登録が成功したか否か
      */
-    public function insertUser(string $icon, string $name)
-    {   
-        $this->icon = $icon;
-        $this->name = $name;
-
-        return $this->save();
+    public function insertUser(array $user) :bool
+    {
+        return $this->fill($user)->save();
     }
 
     /**
      *  ユーザー情報更新
-     *
+     * @param int $id
+     * @param array $user カラム名 => 値のハッシュ
      * @return bool 登録が成功したか否か
      */
-    public function updateUser(string $icon, string $name, ?string $favorite, ?string $profile, ?string $instagram)
-    {   
-        // 空のインスタンスで更新処理しようとしている場合はエラー
-        if (is_null($this->id)) {
-            return false;
-        }
-
-        // 値を詰めて更新
-        $this->icon = $icon;
-        $this->name = $name;
-        $this->favorite = $favorite;
-        $this->profile = $profile;
-        $this->instagram = $instagram;
-
-        return $this->save();
+    public function updateUser(int $id, array $user) :bool
+    {
+        return $this->find($id)->fill($user)->save();
     }
 
     public function snsCredential() {
