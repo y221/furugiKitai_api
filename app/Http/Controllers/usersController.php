@@ -69,7 +69,7 @@ class UsersController extends Controller
             $s3Path = Storage::disk('s3')->url('user_images/'.$fileName);
 
             // ユーザー登録用のハッシュに詰める
-            $user["icon"] = "テスト";
+            $user["icon"] = $s3Path;
 
         } catch(Exception $ex) {
             return ['errors' => "icon画像が取得できませんでした"];
