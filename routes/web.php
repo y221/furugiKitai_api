@@ -25,5 +25,6 @@ Route::get('regions', 'RegionsController@index');
 Route::get('prefectures', 'PrefecturesController@index');
 Route::get('genders', 'GendersController@index');
 Route::post('contacts', 'ContactsController@create');
+Route::get('users/{id}', 'UsersController@show');
 Route::post('users', 'UsersController@create');
 Route::post('users/{id}', 'UsersController@update');
