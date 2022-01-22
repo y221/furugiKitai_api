@@ -37,6 +37,25 @@ class UsersController extends Controller
     }
 
     /**
+     * 単一ユーザーの情報を返す
+     *
+     * @param int $id usersテーブルのid
+     * @return array
+     */
+    public function show(int $id)
+    {   
+        $user = $this->user->getUser($id);
+
+        if (is_null($user)) {
+            return response()->json(
+                ['message' => 'User Not Found'], 404
+            );
+        }
+
+        return $user;
+    }
+
+    /**
      * Oauth認証後のパラメータをフロントから受け取ってサービスに新規登録
      *
      * @param Request $request
