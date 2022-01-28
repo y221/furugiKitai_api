@@ -563,6 +563,7 @@ class ComposerStaticInite4a1cb8348b5af34ba6ef864806722aa
         'App\\Http\\Controllers\\ContactsController' => __DIR__ . '/../..' . '/app/Http/Controllers/ContactsController.php',
         'App\\Http\\Controllers\\Controller' => __DIR__ . '/../..' . '/app/Http/Controllers/Controller.php',
         'App\\Http\\Controllers\\GendersController' => __DIR__ . '/../..' . '/app/Http/Controllers/GendersController.php',
+        'App\\Http\\Controllers\\LoginController' => __DIR__ . '/../..' . '/app/Http/Controllers/LoginController.php',
         'App\\Http\\Controllers\\PrefecturesController' => __DIR__ . '/../..' . '/app/Http/Controllers/PrefecturesController.php',
         'App\\Http\\Controllers\\RegionsController' => __DIR__ . '/../..' . '/app/Http/Controllers/RegionsController.php',
         'App\\Http\\Controllers\\ShopLikesController' => __DIR__ . '/../..' . '/app/Http/Controllers/ShopLikesController.php',
