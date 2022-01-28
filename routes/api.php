@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('shops', 'ShopsController@index');
 Route::get('shops/{id}', 'ShopsController@show');
+Route::get('users/{id}', 'UsersController@show');
 Route::get('regions', 'RegionsController@index');
 Route::get('genders', 'GendersController@index');
 Route::get('prefectures', 'PrefecturesController@index');
