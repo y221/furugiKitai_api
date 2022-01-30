@@ -56,57 +56,6 @@ class UsersController extends Controller
     }
 
     /**
-     * Oauth認証後のパラメータをフロントから受け取ってサービスに新規登録
-     *
-     * @param Request $request
-     * @return array
-     */
-    public function create(Request $request)
-    {
-        // uidで検索し、既にサービス登録済みであれば既存のユーザー情報をリターン
-        $uid = $request->input('uid');
-        $snsCredential = $this->snsCredential->getSnsCredential($uid);
-
-        if (isset($snsCredential)) {
-            $existingUser = $this->user->getUser($snsCredential->user_id);
-            return $existingUser;
-        }
-
-        // バリデーション
-        $validator = Validator::make($request->input(), self::USER_VALIDATE_RULE);
-        if ($validator->fails()) {
-            return ['errors' => $validator->errors()];
-        }
-        $user = $validator->validated();
-
-        // 画像ファイルをS3にアップロード
-        try {
-            $image = file_get_contents($user["icon"]);
-            
-            $fileName = time();
-            Storage::disk('s3')->put('user_images/'.$fileName, $image, 'public');
-            $s3Path = Storage::disk('s3')->url('user_images/'.$fileName);
-
-            // ユーザー登録用のハッシュに詰める
-            $user["icon"] = $s3Path;
-
-        } catch(Exception $ex) {
-            return ['errors' => "icon画像が取得できませんでした"];
-        }
-
-        // DBに登録
-        $this->user->insertUser($user);
-
-        $this->snsCredential->insertLineCredential([
-            "user_id" => $this->user->id, 
-            "uid" => $uid
-        ]);
-
-        // 登録したユーザー情報を返却する
-        return $this->user;
-    }
-
-    /**
      * 更新
      *
      * @param Request $request

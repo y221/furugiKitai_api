@@ -14,6 +14,15 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+Route::get('shops', 'ShopsController@index');
+Route::get('shops/{id}', 'ShopsController@show');
+Route::get('users/{id}', 'UsersController@show');
+Route::get('regions', 'RegionsController@index');
+Route::get('genders', 'GendersController@index');
+Route::get('prefectures', 'PrefecturesController@index');
+Route::middleware('auth:sanctum')->group(function(){
+    Route::put('shops/{id}', 'ShopsController@update');
+    Route::post('shops', 'ShopsController@create');
+    Route::post('contacts', 'ContactsController@create');
+    Route::post('users/{id}', 'UsersController@update');
 });

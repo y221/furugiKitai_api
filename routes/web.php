@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -17,14 +18,5 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('shops', 'ShopsController@index');
-Route::get('shops/{id}', 'ShopsController@show');
-Route::put('shops/{id}', 'ShopsController@update');
-Route::post('shops', 'ShopsController@create');
-Route::get('regions', 'RegionsController@index');
-Route::get('prefectures', 'PrefecturesController@index');
-Route::get('genders', 'GendersController@index');
-Route::post('contacts', 'ContactsController@create');
-Route::get('users/{id}', 'UsersController@show');
-Route::post('users', 'UsersController@create');
-Route::post('users/{id}', 'UsersController@update');
+Route::post('login', 'LoginController@login');
+Route::post('logout', 'LoginController@logout');
