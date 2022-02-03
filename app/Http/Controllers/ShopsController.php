@@ -6,16 +6,18 @@ use App\Models\Shop;
 use App\Models\Prefecture;
 use App\Models\Gender;
 use App\Library\MyFunction;
+use App\Infrastructure\Aws\S3;
+use App\Infrastructure\Google\Geocode;
+use App\Http\Resources\ShopResource;
+use App\Http\Resources\ShopsResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Http\JsonResponse;
 
 class ShopsController extends Controller
 {
     protected $shop;
-    protected $prefecture;
-    protected $gender;
     protected $myFunction;
 
     const SHOP_VALIDATE_RULE = [
@@ -38,183 +40,105 @@ class ShopsController extends Controller
      * @param MyFunction $myFunction
      * @return void
      */
-    public function __construct(Shop $shop, Prefecture $prefecture, Gender $gender, MyFunction $myFunction)
+    public function __construct(Shop $shop, MyFunction $myFunction)
     {
         $this->shop = $shop;
-        $this->prefecture = $prefecture;
-        $this->gender = $gender;
         $this->myFunction = $myFunction;
     }
     /**
      * 一覧取得
      *
      * @param Request $request
-     * @return array
+     * @return JsonResource
      */
-    public function index(Request $request) :array
+    public function index(Request $request) :JsonResource
     {
-        $prefectureIds = $request->prefectureIds ?? [];
-        $page = $request->page ?? 1;
-        $limit = $request->limit ?? 1;
-        $orderby = $request->orderby ?? 'id';
-        $order = $request->order ?? 'ASC';
-        $shops = $this->shop->getShops((array)$prefectureIds, (int)$page, (int)$limit, $orderby, $order);
-        $shops = $this->myFunction->changeArrayKeyCamel($shops->toArray());
-        $count = $this->shop->getShopsCount((array)$prefectureIds);
-        foreach ($shops as $index => $shop) {
-            $shops[$index]['imageUrl'] = empty($shop['imageUrl']) ? '' : Storage::disk('s3')->url($shop['imageUrl']);
-        }
-        return [
-            'shops' => $shops,
-            'count' => $count,
-        ];
+        $this->shop->setConditions($request);
+        return new ShopsResource($this->shop);
     }
 
     /**
      * 登録
      *
      * @param Request $request
-     * @return array
+     * @return jsonResponse
      */
-    public function create(Request $request) :array
+    public function create(Request $request) :jsonResponse
     {
+        // バリデーション
         $validator = Validator::make($request->input(), self::SHOP_VALIDATE_RULE);
-        if ($validator->fails()) return ['errors' => $validator->errors()];
+        if ($validator->fails()) {
+            return new JsonResponse(['errors' => $validator->errors()]);
+        }
         $shop = $validator->validated();
-        $location = $this->getLocation($shop, []);
+
+        // 都道府県データ取得
+        $prefecture = Prefecture::find($shop['prefectureId']);
+
+        // 住所データ
+        $address = $this->shop->makeAddress($prefecture->prefecture, $shop);
+        $geocode = new Geocode;
+        $location = $geocode->fetchLocation($address);
         $shop['latitude'] = $location['lat'] ?? null;
         $shop['longitude'] = $location['lng'] ?? null;
-        $image = $request->file('mainImage') ?? '';
-        $shop['imageUrl'] = empty($image) ? '' : Storage::disk('s3')->put('shop_images', $image, 'public');
+
+        // 画像データ
+        $s3 = new S3($request);
+        $shop['imageUrl'] = $s3->uploadImage('mainImage', 'shop_images');
+
+        // 登録処理
         $this->shop->insertShop($this->myFunction->changeArrayKeySnake($shop));
-        return ['msg' => '登録処理が完了しました'];
+        return new JsonResponse(['msg' => '登録処理が完了しました']);
     }
 
     /**
-     *  緯度軽度取得
-     *
-     * @param array $formShop
-     * @param array $registeredShop
-     * @return array
-     */
-    private function getLocation(array $formShop, array $registeredShop) :array
-    {
-        if (!empty($registeredShop)) {
-            if ($formShop['city'] === $registeredShop['city']
-            && $formShop['address'] === $registeredShop['address']
-            && $formShop['building'] === $registeredShop['building']) {
-                return [
-                    'lat' => $registeredShop['latitude'],
-                    'lng' => $registeredShop['longitude']
-                ];
-            }
-        }
-        $prefectures = array_column($this->prefecture->getPrefectures()->toArray(), 'prefecture', 'id');
-        $building = $formShop['building'] ?? '';
-        $address = "{$prefectures[$formShop['prefectureId']]}{$formShop['city']}{$formShop['address']}{$building}";
-        $client = new \GuzzleHttp\Client();
-        $response = $client->request(
-            'GET',
-            'https://maps.googleapis.com/maps/api/geocode/json',
-            [
-                'query' => [
-                    'address' => $address,
-                    'key' => env('GOOGLE_API_KEY')
-                ]
-            ]
-        );
-        $array = json_decode($response->getBody(), true);
-        return $array['results'][0]['geometry']['location'] ?? [];
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
+     * 詳細取得
      *
      * @param  int  $id
-     * @return array
+     * @return JsonResource
      */
-    public function show(int $id) :array
+    public function show(int $id) :JsonResource
     {
-        $shop = $this->shop->getShop($id)->toArray();
-        $shop = $this->myFunction->changeArrayKeyCamel($shop);
-        $prefecture = $this->prefecture->getPrefecture($shop['prefectureId'])->toArray();
-        $shop['prefecture'] = $prefecture['prefecture'];
-        $gender= $this->gender->getGender($shop['genderId'])->toArray();
-        $shop['gender'] = $gender['gender'];
-        $shop['imageUrl'] = empty($shop['imageUrl']) ? '' : Storage::disk('s3')->url($shop['imageUrl']);
-        return $shop;
+        $shop = Shop::find($id);
+        return new ShopResource($shop);
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id, Request $request)
-    {
-        
-    }
-
-    /**
-     * Update the specified resource in storage.
+     * 更新
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return array
      */
-    public function update(Request $request, int $id) :array
+    public function update(Request $request, int $id) :JsonResponse
     {
+        // バリデーション
         $validator = Validator::make($request->input(), self::SHOP_VALIDATE_RULE);
-        if ($validator->fails()) return ['errors' => $validator->errors()];
-        $shop = $validator->validated();
-        $registeredShop = $this->myFunction->changeArrayKeyCamel($this->shop->getShop($id)->toArray());
-        $location = $this->getLocation($shop, $registeredShop);
-        $shop['latitude'] = $location['lat'] ?? null;
-        $shop['longitude'] = $location['lng'] ?? null;
-        $image = $request->file('mainImage') ?? '';
-        $shop['imageUrl'] = $registeredShop['imageUrl'];
-        if ($this->checkImageUpdated($image, $registeredShop['imageUrl'])) {
-            $shop['imageUrl'] = Storage::disk('s3')->put('shop_images', $image, 'public');
+        if ($validator->fails()) {
+            return ['errors' => $validator->errors()];
         }
+        $shop = $validator->validated();
+
+        // 登録済データ取得
+        $savedShop = $this->shop->getShop($id)->toArray();
+
+        // 住所変更チェック
+        if ($this->shop->isAddressChanged($shop, $savedShop)) {
+            // 都道府県データ取得
+            $prefecture = Prefecture::find($shop['prefectureId']);
+            $address = $this->shop->makeAddress($prefecture->prefecture, $shop);
+            $geocode = new Geocode;
+            $location = $geocode->fetchLocation($address);
+            $shop['latitude'] = $location['lat'] ?? null;
+            $shop['longitude'] = $location['lng'] ?? null;
+        }
+
+        // S3から取得
+        $s3 = new S3($request);
+        $shop['image_url'] = $s3->uploadImage('mainImage', 'shop_images', $savedShop['image_url']);
+
+        // 更新
         $this->shop->updateShop($id, $this->myFunction->changeArrayKeySnake($shop));
-        return ['msg' => '更新処理が完了しました'];
-    }
-
-    /**
-     * 既存の画像が更新されているかチェック
-     *
-     * @param string $imageUrl
-     * @param string $defaultImageUrl
-     * @return bool
-     */
-    private function checkImageUpdated(string $imageUrl, string $registeredImageUrl) :bool
-    {
-        if (empty($imageUrl)) return false;
-        if (!empty($imageUrl) && empty($registeredImageUrl)) return true;
-        $image = Storage::disk('s3')->url($registeredImageUrl);
-        return $imageUrl !== $image;
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
+        return new JsonResponse(['msg' => '更新処理が完了しました']);
     }
 }
