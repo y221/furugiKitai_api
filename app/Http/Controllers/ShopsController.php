@@ -35,7 +35,7 @@ class ShopsController extends Controller
      */
     public function index(Request $request) :JsonResource
     {
-        $this->shop->setConditions($request);
+        $this->shop->setConditions($request->all());
         return new ShopsResource($this->shop);
     }
 

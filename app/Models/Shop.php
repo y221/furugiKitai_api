@@ -19,30 +19,30 @@ class Shop extends Model
     /**
      * 条件設定
      * 
-     * @param Request $request
+     * @param array $conditions
      * @return void
      */
-    public function setConditions(Request $request) :void
+    public function setConditions(array $conditions) :void
     {
         // 都道府県ID設定
-        if (isset($request->prefectureIds)) {
-            $this->prefectureIds = $request->prefectureIds;
+        if (isset($conditions['prefectureIds'])) {
+            $this->prefectureIds = $conditions['prefectureIds'];
         }
         // ページ設定
-        if (isset($request->page)) {
-            $this->page = $request->page;
+        if (isset($conditions['page'])) {
+            $this->page = $conditions['page'];
         }
         // 制限
-        if (isset($request->limit)) {
-            $this->limit = $request->limit;
+        if (isset($conditions['limit'])) {
+            $this->limit = $conditions['limit'];
         }
         // ソートカラム
-        if (isset($request->orderby)) {
-            $this->orderby = $request->orderby;
+        if (isset($conditions['orderby'])) {
+            $this->orderby = $conditions['orderby'];
         }
         // ソート
-        if (isset($request->order)) {
-            $this->order = $request->order;
+        if (isset($conditions['order'])) {
+            $this->order = $conditions['order'];
         }
     }
 
