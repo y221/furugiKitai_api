@@ -14,7 +14,10 @@ class Geocode
      * 
      * @param string $address
      * 
-     * @return array
+     * @return array {
+     *   lat: string,
+     *   lng: string
+     * }
      */
     public function fetchLocation(string $address) :array
     {
@@ -30,6 +33,6 @@ class Geocode
             ]
         );
         $array = json_decode($response->getBody(), true);
-        return $array['results'][0]['geometry']['location'] ?? [];
+        return $array['results'][0]['geometry']['location'] ?? ['lat' => '', 'lng' => ''];
     }
 }

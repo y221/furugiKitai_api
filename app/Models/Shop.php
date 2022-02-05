@@ -48,13 +48,16 @@ class Shop extends Model
     /**
      * 緯度経度設定
      * 
-     * @param array $location
+     * @param array $location {
+     *   lat: string,
+     *   lng: string
+     * }
      * @return void
      */
     public function setLocation(array $location) :void
     {
-        $this->latitude = $location['lat'] ?? null;
-        $this->longitude = $location['lng'] ?? null;
+        $this->latitude = $location['lat'];
+        $this->longitude = $location['lng'];
     }
 
     /**
