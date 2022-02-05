@@ -56,7 +56,8 @@ class ShopsController extends Controller
 
         // 画像データ
         $s3 = new S3();
-        $shop->setImageUrl($s3->uploadImage($request, 'mainImage', 'shop_images'));
+        $image = $request->file('mainImage') ?? $request->input('mainImage');
+        $shop->setImageUrl($s3->uploadImage($image, 'shop_images'));
 
         // 登録
         $shop->save();
@@ -100,7 +101,8 @@ class ShopsController extends Controller
 
         // 画像データ
         $s3 = new S3();
-        $shop->setImageUrl($s3->uploadImage($request, 'mainImage', 'shop_images', $savedShop->image_url));
+        $image = $request->file('mainImage') ?? $request->input('mainImage');
+        $shop->setImageUrl($s3->uploadImage($image, 'shop_images', $savedShop->image_url));
 
         // 登録
         $shop->save();

@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Infrastructure\Aws\S3;
 
 class ShopResource extends JsonResource
 {
@@ -14,6 +15,8 @@ class ShopResource extends JsonResource
      */
     public function toArray($request)
     {
+        $s3 = new S3;
+
         return [
             'id' => $this->id,
             'name' => $this->name,
@@ -32,7 +35,7 @@ class ShopResource extends JsonResource
             'instagramUrl' => $this->instagram_url,
             'holiday' => $this->holiday,
             'businessHour' => $this->business_hour,
-            'imageUrl' => $this->image_url,
+            'imageUrl' => $s3->getPath($this->image_url),
             'likesNumber' => $this->likes_number,
             'reviewsNumber' => $this->reviews_number,
         ];

@@ -3,7 +3,6 @@
 namespace App\Infrastructure\Aws;
 
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Http\Request;
 use Exception;
 
 /**
@@ -11,22 +10,27 @@ use Exception;
  */
 class S3
 {
-    public function __construct() {}
+    private $bucket;
+    private $region;
+
+    public function __construct()
+    {
+        $this->bucket = env('AWS_BUCKET');
+        $this->region = env('AWS_DEFAULT_REGION');
+    }
 
     /**
+     * TODO:ここの処理はユーザの画像処理とかも考慮したうえでやり方考えないといけなさそう
      * ファイルアップロード
      * 
-     * @param string $imageColumn
+     * @param object|string $image
      * @param string $saveDir
      * @param string $savedImage
      * 
      * @return string
      */
-    public function uploadImage(Request $request, string $imageColumn, string $saveDir, string $savedImage = '') : string
+    public function uploadImage(object|string $image, string $saveDir, string $savedImage = '') : string
     {
-        // ファイル取得
-        $image = $request->file($imageColumn) ?? $request->input($imageColumn);
-
         // ファイルがない場合空を返す
         if (empty($image)) {
             return '';
@@ -35,14 +39,32 @@ class S3
         if (!empty($savedImage) && $image === $savedImage) {
             return $savedImage;
         }
+
+        // 念の為文字列判定かけておく
+        if (is_string($image)) {
+            return '';
+        }
+
         // S3アップロードして取得
         try {
+            // ファイル名を返す(フルパスはリソースクラスで作る)
             $savePath = Storage::disk('s3')->put($saveDir, $image, 'public');
-            $imagePath = Storage::disk('s3')->url($savePath);
         } catch(Exception $ex) {
             return '';
         }
 
-        return $imagePath;
+        return $savePath;
+    }
+
+    /**
+     * S3のパスを返す
+     * 
+     * @param string $dbSavedPath
+     * 
+     * @return string
+     */
+    public function getPath(string $dbSavedPath) :string
+    {
+        return "https://{$this->bucket}.s3.{$this->region}.amazonaws.com/{$dbSavedPath}";
     }
 }

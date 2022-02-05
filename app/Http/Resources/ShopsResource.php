@@ -3,7 +3,7 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Storage;
+use App\Infrastructure\Aws\S3;
 
 class ShopsResource extends JsonResource
 {
@@ -15,6 +15,8 @@ class ShopsResource extends JsonResource
      */
     public function toArray($request)
     {
+        $s3 = new S3;
+
         $shops = [];
         foreach ($this->getShops() as $shop) {
             $shops[] = [
@@ -35,11 +37,12 @@ class ShopsResource extends JsonResource
                 'instagramUrl' => $shop['instagram_url'],
                 'holiday' => $shop['holiday'],
                 'businessHour' => $shop['business_hour'],
-                'imageUrl' => $shop['image_url'],
+                'imageUrl' => $s3->getPath($shop['image_url']),
                 'likesNumber' => $shop['likes_number'],
                 'reviewsNumber' => $shop['reviews_number'],
             ];
         }
+
         return [
             'shops' => $shops,
             'count' => $this->getShopsAll()->count(),
