@@ -10,7 +10,7 @@ class MyFunction
      * @param array $target
      * @return array $arrayKeyCamel
      */
-    public static function changeArrayKeyCamel(array $target):array
+    public static function changeArrayKeyCamel(array $target) :array
     {
         $arrayKeyCamel = [];
         foreach($target as $key => $value) {
@@ -19,6 +19,11 @@ class MyFunction
         return $arrayKeyCamel;
     }
 
+    /**
+     * 配列のキーをスネークケースに変換
+     * @param array $target
+     * @return array $arrayKeySnake
+     */
     public static function changeArrayKeySnake(array $target) :array
     {
         $arrayKeySnake = [];

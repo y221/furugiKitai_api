@@ -3,47 +3,29 @@
 namespace App\Http\Controllers;
 
 use App\Models\Shop;
-use App\Models\Prefecture;
-use App\Models\Gender;
-use App\Library\MyFunction;
 use App\Infrastructure\Aws\S3;
 use App\Infrastructure\Google\Geocode;
 use App\Http\Resources\ShopResource;
 use App\Http\Resources\ShopsResource;
+use App\Http\Requests\Shop\CreateRequest;
+use App\Http\Requests\Shop\UpdateRequest;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Http\JsonResponse;
 
 class ShopsController extends Controller
 {
     protected $shop;
-    protected $myFunction;
 
-    const SHOP_VALIDATE_RULE = [
-        'name' => 'required|max:50',
-        'prefectureId' => 'required|integer',
-        'genderId' => 'required|integer',
-        'city' => 'required|max:50',
-        'address' => 'required|max:50',
-        'building' => 'required|max:50',
-        'access' => 'max:50',
-        'phoneNumber' => 'max:50',
-        'instagramUrl' => 'max:50',
-        'holiday' => 'max:50',
-        'businessHour' => 'max:200',
-    ];
     /**
      * DI
      *
      * @param Shop $shop
-     * @param MyFunction $myFunction
      * @return void
      */
-    public function __construct(Shop $shop, MyFunction $myFunction)
+    public function __construct(Shop $shop)
     {
         $this->shop = $shop;
-        $this->myFunction = $myFunction;
     }
     /**
      * 一覧取得
@@ -60,34 +42,24 @@ class ShopsController extends Controller
     /**
      * 登録
      *
-     * @param Request $request
+     * @param CreateRequest $request
      * @return jsonResponse
      */
-    public function create(Request $request) :jsonResponse
+    public function create(CreateRequest $request) :jsonResponse
     {
-        // バリデーション
-        $validator = Validator::make($request->input(), self::SHOP_VALIDATE_RULE);
-        if ($validator->fails()) {
-            return new JsonResponse(['errors' => $validator->errors()]);
-        }
-        $shop = $validator->validated();
+        // バリデーションしてモデルのオブジェクト返す
+        $shop = $request->makeShop();
 
-        // 都道府県データ取得
-        $prefecture = Prefecture::find($shop['prefectureId']);
-
-        // 住所データ
-        $address = $this->shop->makeAddress($prefecture->prefecture, $shop);
+        // 住所データ設定
         $geocode = new Geocode;
-        $location = $geocode->fetchLocation($address);
-        $shop['latitude'] = $location['lat'] ?? null;
-        $shop['longitude'] = $location['lng'] ?? null;
+        $shop->setLocation($geocode->fetchLocation($shop->makeAddress()));
 
         // 画像データ
-        $s3 = new S3($request);
-        $shop['imageUrl'] = $s3->uploadImage('mainImage', 'shop_images');
+        $s3 = new S3();
+        $shop->setImageUrl($s3->uploadImage($request, 'mainImage', 'shop_images'));
 
-        // 登録処理
-        $this->shop->insertShop($this->myFunction->changeArrayKeySnake($shop));
+        // 登録
+        $shop->save();
         return new JsonResponse(['msg' => '登録処理が完了しました']);
     }
 
@@ -110,35 +82,28 @@ class ShopsController extends Controller
      * @param  int  $id
      * @return array
      */
-    public function update(Request $request, int $id) :JsonResponse
+    public function update(UpdateRequest $request, int $id) :JsonResponse
     {
-        // バリデーション
-        $validator = Validator::make($request->input(), self::SHOP_VALIDATE_RULE);
-        if ($validator->fails()) {
-            return ['errors' => $validator->errors()];
-        }
-        $shop = $validator->validated();
+        
+        // バリデーションしてモデルのオブジェクト返す
+        $shop = $request->makeShop();
 
         // 登録済データ取得
-        $savedShop = $this->shop->getShop($id)->toArray();
+        $savedShop = Shop::find($id);
 
         // 住所変更チェック
-        if ($this->shop->isAddressChanged($shop, $savedShop)) {
-            // 都道府県データ取得
-            $prefecture = Prefecture::find($shop['prefectureId']);
-            $address = $this->shop->makeAddress($prefecture->prefecture, $shop);
+        if ($shop->isAddressChanged($savedShop)) {
+            // 住所データ設定
             $geocode = new Geocode;
-            $location = $geocode->fetchLocation($address);
-            $shop['latitude'] = $location['lat'] ?? null;
-            $shop['longitude'] = $location['lng'] ?? null;
+            $shop->setLocation($geocode->fetchLocation($shop->makeAddress()));
         }
 
-        // S3から取得
-        $s3 = new S3($request);
-        $shop['image_url'] = $s3->uploadImage('mainImage', 'shop_images', $savedShop['image_url']);
+        // 画像データ
+        $s3 = new S3();
+        $shop->setImageUrl($s3->uploadImage($request, 'mainImage', 'shop_images', $savedShop->image_url));
 
-        // 更新
-        $this->shop->updateShop($id, $this->myFunction->changeArrayKeySnake($shop));
+        // 登録
+        $shop->save();
         return new JsonResponse(['msg' => '更新処理が完了しました']);
     }
 }

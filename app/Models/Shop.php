@@ -47,6 +47,29 @@ class Shop extends Model
     }
 
     /**
+     * 緯度経度設定
+     * 
+     * @param array $location
+     * @return void
+     */
+    public function setLocation(array $location) :void
+    {
+        $this->latitude = $location['lat'] ?? null;
+        $this->longitude = $location['lng'] ?? null;
+    }
+
+    /**
+     * 画像URL設定
+     * 
+     * @param mixed $imageUrl
+     * @return void
+     */
+    public function setImageUrl(string $imageUrl) :void
+    {
+        $this->image_url = $imageUrl;
+    }
+
+    /**
      * ショップ取得
      *
      * @return object
@@ -65,18 +88,6 @@ class Shop extends Model
         $query->offset($offset)->limit($this->limit)->orderby($this->orderby, $this->order);
         return $query->get();
     }
-
-    /**
-     * ショップをidで取得
-     *
-     * @param integer $id
-     * @return object
-     */
-    public function getShop(int $id) :object
-    {
-        return $this->find($id);
-    }
-
 
     /**
      * 都道府県データをリレーション
@@ -138,32 +149,31 @@ class Shop extends Model
     /**
      * 住所を作成
      * 
-     * @param string $prefecture
-     * @param array $shop
-     * 
      * @return string
      */
-    public function makeAddress(string $prefecture, array $shop) : string
+    public function makeAddress() : string
     {
-        // shopは任意項目のため
-        $building = $shop['building'] ?? '';
-        return "{$prefecture}{$shop['city']}{$shop['address']}{$building}";
+        $prefecture = $this->prefecture->prefecture ?? '';
+        $city = $this->city ?? '';
+        $address = $this->address ?? '';
+        $building = $this->building ?? '';
+        return "{$prefecture}{$city}{$address}{$building}";
     }
 
     /**
      * 住所が変更されているかのチェック
      * 
-     * @param array $postShop
-     * @param array $savedShop
+     * @param Shop $savedShop
      * 
      * @return bool
      */
-    public function isAddressChanged(array $postShop, array $savedShop) : bool
+    public function isAddressChanged(Shop $savedShop) : bool
     {
         // どれか1つでも異なる場合はtrue
-        return $postShop['city'] !== $savedShop['city']
-            || $postShop['address'] !== $savedShop['address']
-            || $postShop['building'] !== $savedShop['building'];
+        return $this->city !== $savedShop->city
+            || $this->address !== $savedShop->address
+            || $this->building !== $savedShop->building;
     }
 
 }
+

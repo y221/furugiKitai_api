@@ -11,10 +11,7 @@ use Exception;
  */
 class S3
 {
-    public function __construct(Request $request)
-    {
-        $this->request = $request;
-    }
+    public function __construct() {}
 
     /**
      * ファイルアップロード
@@ -25,10 +22,10 @@ class S3
      * 
      * @return string
      */
-    public function uploadImage(string $imageColumn, string $saveDir, string $savedImage = '') : string
+    public function uploadImage(Request $request, string $imageColumn, string $saveDir, string $savedImage = '') : string
     {
         // ファイル取得
-        $image = $this->request->file($imageColumn) ?? $this->request->input($imageColumn);
+        $image = $request->file($imageColumn) ?? $request->input($imageColumn);
 
         // ファイルがない場合空を返す
         if (empty($image)) {
