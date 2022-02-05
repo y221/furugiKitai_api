@@ -124,29 +124,6 @@ class Shop extends Model
     }
 
     /**
-     * 登録
-     *
-     * @param array $shop
-     * @return void
-     */
-    public function insertShop(array $shop) :void
-    {
-        $this->fill($shop)->save();
-    }
-
-    /**
-     * 更新
-     *
-     * @param integer $id
-     * @param array $shop
-     * @return void
-     */
-    public function updateShop(int $id, array $shop) :void
-    {
-        $this->find($id)->fill($shop)->save();
-    }
-
-    /**
      * 住所を作成
      * 
      * @return string
