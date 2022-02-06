@@ -2,78 +2,155 @@
 
 namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Prefecture;
+use App\Models\Gender;
 
 class Shop extends Model
 {
+    private $prefectureIds = [];
+    private $page = 1;
+    private $limit = 1;
+    private $orderby = 'id';
+    private $order = 'ASC';
+
     protected $guarded = [];
+
+    /**
+     * 条件設定
+     * 
+     * @param array $conditions
+     * @return void
+     */
+    public function setConditions(array $conditions) :void
+    {
+        // 都道府県ID設定
+        if (isset($conditions['prefectureIds'])) {
+            $this->prefectureIds = $conditions['prefectureIds'];
+        }
+        // ページ設定
+        if (isset($conditions['page'])) {
+            $this->page = $conditions['page'];
+        }
+        // 制限
+        if (isset($conditions['limit'])) {
+            $this->limit = $conditions['limit'];
+        }
+        // ソートカラム
+        if (isset($conditions['orderby'])) {
+            $this->orderby = $conditions['orderby'];
+        }
+        // ソート
+        if (isset($conditions['order'])) {
+            $this->order = $conditions['order'];
+        }
+    }
+
+    /**
+     * 緯度経度設定
+     * 
+     * @param array $location {
+     *   lat: string,
+     *   lng: string
+     * }
+     * @return void
+     */
+    public function setLocation(array $location) :void
+    {
+        $this->latitude = $location['lat'];
+        $this->longitude = $location['lng'];
+    }
+
+    /**
+     * 画像URL設定
+     * 
+     * @param mixed $imageUrl
+     * @return void
+     */
+    public function setImageUrl(string $imageUrl) :void
+    {
+        $this->image_url = $imageUrl;
+    }
+
     /**
      * ショップ取得
      *
-     * @param array $prefectureIds
-     * @param int $page
-     * @param int $limit
-     * @param string $orderby
-     * @param string $order
      * @return object
      */
-    public function getShops(array $prefectureIds, int $page, int $limit, string $orderby = 'id', string $order = 'ASC')
+    public function getShops() :object
     {
-        $offset = $limit * ($page - 1);
+        $offset = $this->limit * ($this->page - 1);
         $query = $this->newQuery();
-        $query->select('shops.*', 'prefectures.prefecture', 'genders.gender');
-        $query->leftJoin('prefectures', 'shops.prefecture_id', '=', 'prefectures.id');
-        $query->leftJoin('genders', 'shops.gender_id', '=', 'genders.id');
-        if (!empty($prefectureIds)) $query->whereIn('prefecture_id', $prefectureIds);
+        $query->with(['prefecture', 'gender']);
+        if (!empty($this->prefectureIds)) {
+            $query->whereIn('prefecture_id', $this->prefectureIds);
+        }
         $query->where('active', 1);
-        $query->offset($offset)->limit($limit)->orderby($orderby, $order);
+        $query->offset($offset)->limit($this->limit)->orderby($this->orderby, $this->order);
         return $query->get();
     }
 
     /**
-     * ショップをidで取得
-     *
-     * @param integer $id
+     * 都道府県データをリレーション
+     * 
      * @return object
      */
-    public function getShop(int $id) :object
+    public function prefecture() :object
     {
-        return $this->find($id);
+        return $this->belongsTo(Prefecture::class);
     }
 
     /**
-     * 店舗数カウント
+     * 性別データをリレーション
+     * 
+     * @return object
+     */
+    public function gender() :object
+    {
+        return $this->belongsTo(Gender::class);
+    }
+
+    /**
+     * 対象条件の店舗全店舗取得
      *
-     * @param array $prefectureIds
      * @return int
      */
-    public function getShopsCount(array $prefectureIds) :int
+    public function getShopsAll() :object
     {
         $query = $this->newQuery();
-        if (!empty($prefectureIds)) $query->whereIn('prefecture_id', $prefectureIds);
-        return $query->count();
+        if (!empty($this->prefectureIds)) {
+            $query->whereIn('prefecture_id', $this->prefectureIds);
+        }
+        return $query->get();
     }
 
     /**
-     * 登録
-     *
-     * @param array $shop
-     * @return void
+     * 住所を作成
+     * 
+     * @return string
      */
-    public function insertShop(array $shop) :void
+    public function makeAddress() : string
     {
-        $this->fill($shop)->save();
+        $prefecture = $this->prefecture->prefecture ?? '';
+        $city = $this->city ?? '';
+        $address = $this->address ?? '';
+        $building = $this->building ?? '';
+        return "{$prefecture}{$city}{$address}{$building}";
     }
 
     /**
-     * 更新
-     *
-     * @param integer $id
-     * @param array $shop
-     * @return void
+     * 住所が変更されているかのチェック
+     * 
+     * @param Shop $savedShop
+     * 
+     * @return bool
      */
-    public function updateShop(int $id, array $shop) :void
+    public function isAddressChanged(Shop $savedShop) : bool
     {
-        $this->find($id)->fill($shop)->save();
+        // どれか1つでも異なる場合はtrue
+        return $this->city !== $savedShop->city
+            || $this->address !== $savedShop->address
+            || $this->building !== $savedShop->building;
     }
 
 }
+
