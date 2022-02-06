@@ -80,9 +80,7 @@ class Shop extends Model
     {
         $offset = $this->limit * ($this->page - 1);
         $query = $this->newQuery();
-        $query->select('shops.*', 'prefectures.prefecture', 'genders.gender');
-        $query->leftJoin('prefectures', 'shops.prefecture_id', '=', 'prefectures.id');
-        $query->leftJoin('genders', 'shops.gender_id', '=', 'genders.id');
+        $query->with(['prefecture', 'gender']);
         if (!empty($this->prefectureIds)) {
             $query->whereIn('prefecture_id', $this->prefectureIds);
         }
