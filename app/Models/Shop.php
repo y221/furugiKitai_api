@@ -9,7 +9,7 @@ class Shop extends Model
 {
     private $prefectureIds = [];
     private $page = 1;
-    private $limit = 1;
+    private $limit = 5;
     private $orderby = 'id';
     private $order = 'ASC';
 
