@@ -65,6 +65,9 @@ class S3
      */
     public function getPath(string $dbSavedPath) :string
     {
+        if (empty($dbSavedPath)) {
+            return '';
+        }
         return "https://{$this->bucket}.s3.{$this->region}.amazonaws.com/{$dbSavedPath}";
     }
 }
