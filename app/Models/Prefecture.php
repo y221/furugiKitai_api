@@ -10,13 +10,17 @@ class Prefecture extends Model
     use HasFactory;
 
     /**
-     * 全件取得
-     *
+     * 取得
+     * @param array $ids
      * @return object
      */
-    public function getPrefectures()
+    public function getPrefectures($ids)
     {
-        return $this->get();
+        $query = $this->newQuery();
+        if (!empty($ids)) {
+            $query->whereIn('id', $ids);
+        }
+        return $query->get();
     }
 
     /**

@@ -26,9 +26,10 @@ class PrefecturesController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return $this->myFunction->changeArrayKeyCamel($this->prefecture->all()->toArray());
+        $ids = $request->input('ids');
+        return $this->myFunction->changeArrayKeyCamel($this->prefecture->getPrefectures($ids)->toArray());
     }
 
     /**
