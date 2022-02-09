@@ -8,6 +8,7 @@ use App\Models\Gender;
 class Shop extends Model
 {
     private $prefectureIds = [];
+    private $areaIds = [];
     private $page = 1;
     private $limit = 5;
     private $orderby = 'id';
@@ -26,6 +27,10 @@ class Shop extends Model
         // 都道府県ID設定
         if (isset($conditions['prefectureIds'])) {
             $this->prefectureIds = $conditions['prefectureIds'];
+        }
+        // 都道府県ID設定
+        if (isset($conditions['areaIds'])) {
+            $this->areaIds = $conditions['areaIds'];
         }
         // ページ設定
         if (isset($conditions['page'])) {
@@ -84,6 +89,9 @@ class Shop extends Model
         if (!empty($this->prefectureIds)) {
             $query->whereIn('prefecture_id', $this->prefectureIds);
         }
+        if (!empty($this->areaIds)) {
+            $query->whereIn('area_id', $this->areaIds);
+        }
         $query->where('active', 1);
         $query->offset($offset)->limit($this->limit)->orderby($this->orderby, $this->order);
         return $query->get();
@@ -119,6 +127,9 @@ class Shop extends Model
         $query = $this->newQuery();
         if (!empty($this->prefectureIds)) {
             $query->whereIn('prefecture_id', $this->prefectureIds);
+        }
+        if (!empty($this->areaIds)) {
+            $query->whereIn('area_id', $this->areaIds);
         }
         return $query->get();
     }
