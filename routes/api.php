@@ -20,6 +20,7 @@ Route::get('users/{id}', 'UsersController@show');
 Route::get('regions', 'RegionsController@index');
 Route::get('genders', 'GendersController@index');
 Route::get('prefectures', 'PrefecturesController@index');
+Route::get('areas', 'AreasController@index');
 Route::middleware('auth:sanctum')->group(function(){
     Route::put('shops/{id}', 'ShopsController@update');
     Route::post('shops', 'ShopsController@create');
