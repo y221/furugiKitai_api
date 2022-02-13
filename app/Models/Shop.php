@@ -8,6 +8,7 @@ use App\Models\Gender;
 class Shop extends Model
 {
     private $prefectureIds = [];
+    private $genderIds = [];
     private $areaIds = [];
     private $page = 1;
     private $limit = 5;
@@ -27,6 +28,9 @@ class Shop extends Model
         // 都道府県ID設定
         if (isset($conditions['prefectureIds'])) {
             $this->prefectureIds = $conditions['prefectureIds'];
+        }
+        if (isset($conditions['genderIds'])) {
+            $this->genderIds = $conditions['genderIds'];
         }
         // 都道府県ID設定
         if (isset($conditions['areaIds'])) {
@@ -86,13 +90,7 @@ class Shop extends Model
         $offset = $this->limit * ($this->page - 1);
         $query = $this->newQuery();
         $query->with(['prefecture', 'gender']);
-        if (!empty($this->prefectureIds)) {
-            $query->whereIn('prefecture_id', $this->prefectureIds);
-        }
-        if (!empty($this->areaIds)) {
-            $query->whereIn('area_id', $this->areaIds);
-        }
-        $query->where('active', 1);
+        $query = $this->setQueryCondition($query);
         $query->offset($offset)->limit($this->limit)->orderby($this->orderby, $this->order);
         return $query->get();
     }
@@ -125,12 +123,7 @@ class Shop extends Model
     public function getShopsAll() :object
     {
         $query = $this->newQuery();
-        if (!empty($this->prefectureIds)) {
-            $query->whereIn('prefecture_id', $this->prefectureIds);
-        }
-        if (!empty($this->areaIds)) {
-            $query->whereIn('area_id', $this->areaIds);
-        }
+        $query = $this->setQueryCondition($query);
         return $query->get();
     }
 
@@ -163,5 +156,26 @@ class Shop extends Model
             || $this->building !== $savedShop->building;
     }
 
+    
+    /**
+     * 店舗取得クエリの条件設定
+     * 
+     * @param object
+     * @return object
+     */
+    private function setQueryCondition($query)
+    {
+        if (!empty($this->prefectureIds)) {
+            $query->whereIn('prefecture_id', $this->prefectureIds);
+        }
+        if (!empty($this->genderIds)) {
+            $query->whereIn('gender_id', $this->genderIds);
+        }
+        if (!empty($this->areaIds)) {
+            $query->whereIn('area_id', $this->areaIds);
+        }
+        $query->where('active', 1);
+        return $query;
+    }
 }
 
