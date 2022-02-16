@@ -14,6 +14,7 @@ class Shop extends Model
     private $limit = 5;
     private $orderby = 'id';
     private $order = 'ASC';
+    private $text = '';
 
     protected $guarded = [];
 
@@ -51,6 +52,10 @@ class Shop extends Model
         // ソート
         if (isset($conditions['order'])) {
             $this->order = $conditions['order'];
+        }
+        // テキスト
+        if (isset($conditions['text'])) {
+            $this->text = $conditions['text'];
         }
     }
 
@@ -173,6 +178,23 @@ class Shop extends Model
         }
         if (!empty($this->areaIds)) {
             $query->whereIn('area_id', $this->areaIds);
+        }
+        if (!empty($this->text)) {
+            $query->whereIn('id', function ($query) {
+                $query->select('id')
+                    ->from('shops')
+                    ->where('name', 'LIKE', "%{$this->text}%")
+                    ->orWhereIn('prefecture_id',function ($query) {
+                        $query->select('id')
+                        ->from('prefectures')
+                        ->where('prefecture', 'LIKE', "%{$this->text}%");
+                    })
+                    ->orWhereIn('area_id',function ($query) {
+                        $query->select('id')
+                        ->from('areas')
+                        ->where('name', 'LIKE', "%{$this->text}%");
+                    });
+            });
         }
         $query->where('active', 1);
         return $query;
