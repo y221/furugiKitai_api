@@ -14,9 +14,11 @@ class Shop extends Model
     private $limit = 5;
     private $orderby = 'id';
     private $order = 'ASC';
-    private $text = '';
+    private $keyword = '';
 
     protected $guarded = [];
+
+    const ORDER = ['ASC', 'DESC'];
 
     /**
      * 条件設定
@@ -39,23 +41,34 @@ class Shop extends Model
         }
         // ページ設定
         if (isset($conditions['page'])) {
-            $this->page = $conditions['page'];
+            $page = $conditions['page'];
+            // 数字の場合
+            if (is_numeric($page) && is_int((int)$page)) {
+                $this->page = $page;
+            }
         }
         // 制限
         if (isset($conditions['limit'])) {
-            $this->limit = $conditions['limit'];
-        }
-        // ソートカラム
-        if (isset($conditions['orderby'])) {
-            $this->orderby = $conditions['orderby'];
+            $limit = $conditions['limit'];
+            // 数字の場合
+            if (is_numeric($limit) && is_int((int)$limit)) {
+                $this->limit = $limit;
+            }
         }
         // ソート
         if (isset($conditions['order'])) {
-            $this->order = $conditions['order'];
+            if (in_array($conditions['order'], self::ORDER, true)) {
+                $this->order = $conditions['order'];
+            }
+        }
+        // ソートカラム
+        if (isset($conditions['orderby'])) {
+            // TODO：カラムの一覧取得して判定加えたい
+            $this->orderby = $conditions['orderby'];
         }
         // テキスト
-        if (isset($conditions['text'])) {
-            $this->text = $conditions['text'];
+        if (isset($conditions['keyword'])) {
+            $this->keyword = $conditions['keyword'];
         }
     }
 
@@ -179,20 +192,20 @@ class Shop extends Model
         if (!empty($this->areaIds)) {
             $query->whereIn('area_id', $this->areaIds);
         }
-        if (!empty($this->text)) {
+        if (!empty($this->keyword)) {
             $query->whereIn('id', function ($query) {
                 $query->select('id')
                     ->from('shops')
-                    ->where('name', 'LIKE', "%{$this->text}%")
+                    ->where('name', 'LIKE', "%{$this->keyword}%")
                     ->orWhereIn('prefecture_id',function ($query) {
                         $query->select('id')
                         ->from('prefectures')
-                        ->where('prefecture', 'LIKE', "%{$this->text}%");
+                        ->where('prefecture', 'LIKE', "%{$this->keyword}%");
                     })
                     ->orWhereIn('area_id',function ($query) {
                         $query->select('id')
                         ->from('areas')
-                        ->where('name', 'LIKE', "%{$this->text}%");
+                        ->where('name', 'LIKE', "%{$this->keyword}%");
                     });
             });
         }

@@ -23,13 +23,13 @@ class S3
      * TODO:ここの処理はユーザの画像処理とかも考慮したうえでやり方考えないといけなさそう
      * ファイルアップロード
      * 
-     * @param object|string $image
+     * @param object|string|null $image
      * @param string $saveDir
      * @param string $savedImage
      * 
      * @return string
      */
-    public function uploadImage(object|string $image, string $saveDir, string $savedImage = '') : string
+    public function uploadImage(object|string|null $image, string $saveDir, string $savedImage = '') : string
     {
         // ファイルがない場合空を返す
         if (empty($image)) {
