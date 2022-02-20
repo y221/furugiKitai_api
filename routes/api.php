@@ -29,6 +29,8 @@ Route::get('conditions/areas', 'ConditionsController@areas');
 Route::middleware('auth:sanctum')->group(function(){
     Route::put('shops/{id}', 'ShopsController@update');
     Route::post('shops', 'ShopsController@create');
+    Route::post('shop/likes', 'ShopLikesController@toggle');
+    Route::post('shops', 'ShopsController@create');
     Route::post('contacts', 'ContactsController@create');
     Route::post('users/{id}', 'UsersController@update');
 });
