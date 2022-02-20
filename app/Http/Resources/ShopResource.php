@@ -36,8 +36,8 @@ class ShopResource extends JsonResource
             'holiday' => $this->holiday,
             'businessHour' => $this->business_hour,
             'imageUrl' => $s3->getPath($this->image_url),
-            'likesNumber' => $this->likes_number,
-            'reviewsNumber' => $this->reviews_number,
+            'likeCount' => $this->like_count,
+            'reviewCount' => $this->review_count,
         ];
     }
 }
