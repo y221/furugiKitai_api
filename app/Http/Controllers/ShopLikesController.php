@@ -43,9 +43,7 @@ class ShopLikesController extends Controller
             }
             ;
             $count = $shopLike->where('shop_id', $shopLike->shop_id)->count();
-            $this->shop->find($shopLike->shop_id);
-            $this->shop->fill(['like_count' => $count]);
-            $this->shop->save();
+            $this->shop->find($shopLike->shop_id)->fill(['like_count' => $count])->save();
             DB::commit();
         } catch (Exception $e) {
             DB::rollback();
