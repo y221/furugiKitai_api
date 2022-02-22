@@ -43,9 +43,9 @@ class ShopsController extends Controller
      * 登録
      *
      * @param CreateRequest $request
-     * @return jsonResponse
+     * @return ShopResource
      */
-    public function create(CreateRequest $request) :jsonResponse
+    public function create(CreateRequest $request) :ShopResource
     {
         // バリデーションしてモデルのオブジェクト返す
         $shop = $request->makeShop();
@@ -61,7 +61,7 @@ class ShopsController extends Controller
 
         // 登録
         $shop->save();
-        return new JsonResponse(['msg' => '登録処理が完了しました']);
+        return new ShopResource($shop);
     }
 
     /**
@@ -81,9 +81,9 @@ class ShopsController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
-     * @return array
+     * @return ShopResource
      */
-    public function update(UpdateRequest $request, int $id) :JsonResponse
+    public function update(UpdateRequest $request, int $id) :ShopResource
     {
         
         // バリデーションしてモデルのオブジェクト返す
@@ -106,6 +106,6 @@ class ShopsController extends Controller
 
         // 登録
         $shop->save();
-        return new JsonResponse(['msg' => '更新処理が完了しました']);
+        return new ShopResource($shop);
     }
 }
