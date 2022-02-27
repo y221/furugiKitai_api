@@ -4,6 +4,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Prefecture;
 use App\Models\Gender;
+use App\Models\ShopLike;
 
 class Shop extends Model
 {

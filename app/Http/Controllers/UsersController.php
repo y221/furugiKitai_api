@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\SnsCredential;
+use App\Models\ShopLike;
 use Exception;
-use Facade\FlareClient\Stacktrace\File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 
 class UsersController extends Controller
 {   
@@ -97,5 +99,18 @@ class UsersController extends Controller
         $this->user->updateUser($id, $user);
 
         return $user;
+    }
+
+    /**
+     * 詳細取得
+     *
+     * @param  Request  $request
+     * @return JsonResponse
+     */
+    public function shopLike(Request $request) :JsonResponse
+    {
+        $params = $request->all();
+        $shopLike = ShopLike::where('shop_id', $params['shopId'])->where('user_id', Auth::id());
+        return new JsonResponse(['isUserShopLikeOn' => $shopLike->exists()]);
     }
 }
