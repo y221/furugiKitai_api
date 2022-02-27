@@ -33,4 +33,5 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::post('shops', 'ShopsController@create');
     Route::post('contacts', 'ContactsController@create');
     Route::post('users/{id}', 'UsersController@update');
+    Route::get('users/shop/like', 'UsersController@shopLike');
 });
