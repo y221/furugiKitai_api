@@ -87,7 +87,7 @@ class ShopsController extends Controller
     {
         
         // バリデーションしてモデルのオブジェクト返す
-        $shop = $request->makeShop();
+        $shop = $request->makeShop($id);
 
         // 登録済データ取得
         $savedShop = Shop::find($id);

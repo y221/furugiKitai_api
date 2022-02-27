@@ -28,10 +28,15 @@ class UpdateRequest extends FormRequest
         ];
     }
 
-    public function makeShop(): Shop
+    /**
+     * @param mixed $id
+     * 
+     * @return Shop
+     */
+    public function makeShop($id): Shop
     {
         // バリデーションした値で埋めた Shop を取得
-        $shop = MyFunction::changeArrayKeySnake($this->validated());
-        return new Shop($shop);
+        $validated = MyFunction::changeArrayKeySnake($this->validated());
+        return Shop::find($id)->fill($validated);
     }
 }
