@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Resources\condition;
+namespace App\Http\Resources\Condition;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Http\Resources\PrefecturesResource;
