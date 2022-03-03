@@ -1,7 +1,8 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class UpdatePrefecturesTable extends Migration
 {
@@ -12,7 +13,9 @@ class UpdatePrefecturesTable extends Migration
      */
     public function up()
     {
-        DB::statement('ALTER TABLE prefectures CHANGE COLUMN area_id region_id SMALLINT UNSIGNED NOT NULL');
+        Schema::table('prefectures', function (Blueprint $table) {
+            $table->renameColumn('area_id', 'region_id');
+        });
     }
 
     /**
@@ -22,6 +25,8 @@ class UpdatePrefecturesTable extends Migration
      */
     public function down()
     {
-        DB::statement('ALTER TABLE prefectures CHANGE COLUMN region_id area_id SMALLINT  NOT NULL');
+        Schema::table('prefectures', function (Blueprint $table) {
+            $table->renameColumn('region_id', 'area_id');
+        });
     }
 }
