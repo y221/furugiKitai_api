@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Region;
 use App\Models\Prefecture;
-use App\Http\Resources\condition\PrefecturesGroupByRegionResource;
-use App\Http\Resources\condition\AreasGroupByPrefectureResource;
+use App\Http\Resources\Condition\PrefecturesGroupByRegionResource;
+use App\Http\Resources\Condition\AreasGroupByPrefectureResource;
 
 class ConditionsController extends Controller
 {
