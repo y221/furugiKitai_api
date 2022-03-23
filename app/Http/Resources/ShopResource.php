@@ -31,7 +31,7 @@ class ShopResource extends JsonResource
             'building' => $this->building,
             'access' => $this->access,
             'latitude' => $this->latitude,
-            'logitude' => $this->logitude,
+            'longitude' => $this->longitude,
             'phoneNumber' => $this->phone_number,
             'instagramUrl' => $this->instagram_url,
             'holiday' => $this->holiday,
