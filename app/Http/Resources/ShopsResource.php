@@ -32,7 +32,7 @@ class ShopsResource extends JsonResource
                 'building' => $shop->building,
                 'access' => $shop->access,
                 'latitude' => $shop->latitude,
-                'logitude' => $shop->logitude,
+                'longitude' => $shop->longitude,
                 'phoneNumber' => $shop->phone_number,
                 'instagramUrl' => $shop->instagram_url,
                 'holiday' => $shop->holiday,
