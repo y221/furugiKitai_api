@@ -33,6 +33,6 @@ class Geocode
             ]
         );
         $array = json_decode($response->getBody(), true);
-        return $array['results'][0]['geometry']['location'] ?? ['lat' => '', 'lng' => ''];
+        return $array['results'][0]['geometry']['location'] ?? ['lat' => 0, 'lng' => 0];
     }
 }
