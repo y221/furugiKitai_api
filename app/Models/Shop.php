@@ -157,7 +157,7 @@ class Shop extends Model
         $city = $this->city ?? '';
         $address = $this->address ?? '';
         $building = $this->building ?? '';
-        return "{$prefecture}{$city}{$address}{$building}";
+        return "{$prefecture}{$city}{$address}";
     }
 
     /**
@@ -171,8 +171,7 @@ class Shop extends Model
     {
         // どれか1つでも異なる場合はtrue
         return $this->city !== $savedShop->city
-            || $this->address !== $savedShop->address
-            || $this->building !== $savedShop->building;
+            || $this->address !== $savedShop->address;
     }
 
     
