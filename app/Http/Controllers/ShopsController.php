@@ -3,10 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Shop;
+use App\Models\Prefecture;
+use App\Models\Gender;
 use App\Infrastructure\Aws\S3;
 use App\Infrastructure\Google\Geocode;
 use App\Http\Resources\ShopResource;
 use App\Http\Resources\ShopsResource;
+use App\Http\Resources\PrefecturesResource;
+use App\Http\Resources\GendersResource;
 use App\Http\Requests\Shop\CreateRequest;
 use App\Http\Requests\Shop\UpdateRequest;
 use Illuminate\Http\Request;
@@ -27,6 +31,7 @@ class ShopsController extends Controller
     {
         $this->shop = $shop;
     }
+
     /**
      * 一覧取得
      *
@@ -74,6 +79,23 @@ class ShopsController extends Controller
     {
         $shop = Shop::find($id);
         return new ShopResource($shop);
+    }
+
+    /**
+     * 編集
+     * @param int $id
+     * 
+     * @return JsonResource
+     */
+    public function edit(int $id, Prefecture $prefecture, Gender $gender) :JsonResource
+    {
+        $shop = Shop::find($id);
+
+        return new JsonResource([
+            'shop' => new ShopResource($shop),
+            'prefectures' => new PrefecturesResource($prefecture),
+            'genders' => new GendersResource($gender)
+        ]);
     }
 
     /**
