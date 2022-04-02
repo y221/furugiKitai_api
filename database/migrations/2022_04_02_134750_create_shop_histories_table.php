@@ -15,7 +15,7 @@ class CreateShopHistoriesTable extends Migration
     {
         Schema::create('shop_histories', function (Blueprint $table) {
             $table->id();
-            $table->integer('shop_id');
+            $table->integer('shop_id')->index();
             $table->string('name', 50);
             $table->integer('prefecture_id');
             $table->integer('area_id')->default(0);
@@ -32,7 +32,9 @@ class CreateShopHistoriesTable extends Migration
             $table->string('business_hour', 255)->nullable();
             $table->string('image_url', 255)->nullable();
             $table->date('created_at');
+            $table->date('updated_at');
             $table->integer('created_user_id');
+            $table->integer('updated_user_id');
         });
     }
 
