@@ -58,11 +58,12 @@ class User extends Authenticatable
      *  ユーザー情報更新
      * @param int $id
      * @param array $user カラム名 => 値のハッシュ
-     * @return bool 登録が成功したか否か
+     * @return User 登録が成功したか否か
      */
-    public function updateUser(int $id, array $user) :bool
+    public function updateUser(int $id, array $user)
     {
-        return $this->find($id)->fill($user)->save();
+        $this->find($id)->fill($user)->save();
+        return $this->find($id);
     }
 
     public function snsCredential() {

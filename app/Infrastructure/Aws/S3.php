@@ -35,8 +35,9 @@ class S3
         if (empty($image)) {
             return '';
         }
+
         // 登録済み画像がポストされた画像と同じ場合
-        if (!empty($savedImage) && $image === $savedImage) {
+        if (!empty($savedImage) && ($image === $savedImage || $image === $this->getPath($savedImage))) {
             return $savedImage;
         }
 

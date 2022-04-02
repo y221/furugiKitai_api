@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
@@ -47,7 +48,7 @@ class LoginController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function login(Request $request)
+    public function login(Request $request) :UserResource
     {
         // uidで検索し、既にサービス登録済みであれば既存のユーザー情報をリターン
         $uid = $request->input('uid');
@@ -68,7 +69,7 @@ class LoginController extends Controller
             
             $request->session()->regenerate();
     
-            return $existingUser;
+            return new UserResource($existingUser);
         }
 
         // バリデーション
@@ -84,9 +85,9 @@ class LoginController extends Controller
             
             $fileName = time();
             Storage::disk('s3')->put('user_images/'.$fileName, $image, 'public');
-            $s3Path = Storage::disk('s3')->url('user_images/'.$fileName);
 
             // ユーザー登録用のハッシュに詰める
+            $s3Path = 'user_images/'.$fileName;
             $user["icon"] = $s3Path;
 
         } catch(Exception $ex) {
@@ -114,7 +115,7 @@ class LoginController extends Controller
         $request->session()->regenerate();
 
         // 登録したユーザー情報を返却する
-        return $this->user;
+        return new UserResource($this->user);
     }
 
     /**

@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Models\SnsCredential;
 use App\Models\ShopLike;
-use Exception;
+use App\Infrastructure\Aws\S3;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 
@@ -16,6 +16,7 @@ class UsersController extends Controller
 {   
     protected $user;
     protected $snsCredential;
+    protected $s3;
 
     const USER_VALIDATE_RULE = [
         'icon' => '',
@@ -28,14 +29,16 @@ class UsersController extends Controller
     /**
      * DI
      *
-     * @param User $user
+     * @param User          $user
      * @param SnsCredential $snsCredential
+     * @param S3            $s3
      * @return void
      */
-    public function __construct(User $user, SnsCredential $snsCredential)
+    public function __construct(User $user, SnsCredential $snsCredential, S3 $s3)
     {
-        $this->user = $user;
+        $this->user          = $user;
         $this->snsCredential = $snsCredential;
+        $this->s3            = $s3;
     }
 
     /**
@@ -44,7 +47,7 @@ class UsersController extends Controller
      * @param int $id usersテーブルのid
      * @return array
      */
-    public function show(int $id)
+    public function show(int $id) :UserResource
     {   
         $user = $this->user->getUser($id);
 
@@ -54,7 +57,7 @@ class UsersController extends Controller
             );
         }
 
-        return $user;
+        return new UserResource($user);
     }
 
     /**
@@ -63,7 +66,7 @@ class UsersController extends Controller
      * @param Request $request
      * @return array
      */
-    public function update(Request $request, int $id)
+    public function update(Request $request, int $id) :UserResource
     {
         // リクエストに含まれるuidで検索し、更新予定のユーザーに紐づいていなければエラー
         $uid = $request->input('uid');
@@ -78,27 +81,22 @@ class UsersController extends Controller
         if ($validator->fails()) {
             return ['errors' => $validator->errors()];
         }
-        $user = $validator->validated();
+        $input = $validator->validated();
+
+        // 更新前のユーザーアイコン取得
+        $u = $this->user->getUser($request->input('id'));
+        $existingImage = $u->icon;
 
         // 画像ファイルをS3にアップロード
-        try {
-            $image = file_get_contents($user['icon']);
-            
-            $fileName = time();
-            Storage::disk('s3')->put('user_images/'.$fileName, $image, 'public');
-            $s3Path = Storage::disk('s3')->url('user_images/'.$fileName);
-            
-            // ユーザー更新用のハッシュに詰める
-            $user["icon"] = $s3Path;
+        $image = $request->file('icon') ?? $request->input('icon');
 
-        } catch(Exception $ex) {
-            return ['errors' => "icon画像が取得できませんでした"];
-        }
+        $uploadedS3Path = $this->s3->uploadImage($image, 'user_images', $existingImage);
+        $input["icon"] = $uploadedS3Path;
 
         // DB更新
-        $this->user->updateUser($id, $user);
+        $user = $this->user->updateUser($id, $input);
 
-        return $user;
+        return new UserResource($user);
     }
 
     /**
