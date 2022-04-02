@@ -212,5 +212,18 @@ class Shop extends Model
         $query->where('active', 1);
         return $query;
     }
+
+    /**
+     * 店舗履歴登録用配列取得
+     * 
+     * @return array
+     */
+    public function getShopHistoryArray() : array
+    {
+        $array = $this->toArray();
+        $array['shop_id'] = $array['id'];
+        
+        return $array;
+    }
 }
 
