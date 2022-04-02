@@ -11,7 +11,7 @@ use App\Http\Resources\ShopResource;
 use App\Http\Resources\ShopsResource;
 use App\Http\Resources\PrefecturesResource;
 use App\Http\Resources\GendersResource;
-use App\Http\Requests\Shop\CreateRequest;
+use App\Http\Requests\Shop\StoreRequest;
 use App\Http\Requests\Shop\UpdateRequest;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -46,11 +46,27 @@ class ShopsController extends Controller
 
     /**
      * 登録
+     * 
+     * @param Prefecture $prefecture
+     * @param Gender $gender
      *
-     * @param CreateRequest $request
+     * @return JsonResource
+     */
+    public function create(Prefecture $prefecture, Gender $gender) :JsonResource
+    {
+        return new JsonResource([
+            'prefectures' => new PrefecturesResource($prefecture),
+            'genders' => new GendersResource($gender)
+        ]);
+    }
+
+    /**
+     * 登録処理
+     *
+     * @param StoreRequest $request
      * @return ShopResource
      */
-    public function create(CreateRequest $request) :ShopResource
+    public function store(StoreRequest $request) :ShopResource
     {
         // バリデーションしてモデルのオブジェクト返す
         $shop = $request->makeShop();
@@ -84,6 +100,8 @@ class ShopsController extends Controller
     /**
      * 編集
      * @param int $id
+     * @param Prefecture $prefecture
+     * @param Gender $gender
      * 
      * @return JsonResource
      */

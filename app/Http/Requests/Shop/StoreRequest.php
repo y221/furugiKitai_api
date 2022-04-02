@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 /**
  * Shopの作成リクエスト
  */
-class CreateRequest extends FormRequest
+class StoreRequest extends FormRequest
 {
     public function rules(): array
     {
