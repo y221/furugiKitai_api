@@ -27,8 +27,7 @@ Route::get('prefectures', 'PrefecturesController@index');
 Route::get('areas', 'AreasController@index');
 
 // 検索条件作成用データ
-Route::get('conditions/prefectures', 'ConditionsController@prefectures');
-Route::get('conditions/areas', 'ConditionsController@areas');
+Route::get('conditions', 'ConditionsController@index');
 
 Route::middleware('auth:sanctum')->group(function(){
     Route::put('shops/{id}', 'ShopsController@update');

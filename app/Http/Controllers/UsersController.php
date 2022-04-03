@@ -29,9 +29,9 @@ class UsersController extends Controller
     /**
      * DI
      *
-     * @param User          $user
+     * @param User $user
      * @param SnsCredential $snsCredential
-     * @param S3            $s3
+     * @param S3 $s3
      * @return void
      */
     public function __construct(User $user, SnsCredential $snsCredential, S3 $s3)

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Shop;
+use App\Models\ShopHistory;
 use App\Models\Prefecture;
 use App\Models\Gender;
 use App\Infrastructure\Aws\S3;
@@ -15,7 +16,6 @@ use App\Http\Requests\Shop\StoreRequest;
 use App\Http\Requests\Shop\UpdateRequest;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Http\JsonResponse;
 
 class ShopsController extends Controller
 {
@@ -64,9 +64,11 @@ class ShopsController extends Controller
      * 登録処理
      *
      * @param StoreRequest $request
+     * @param ShopHistory $shopHistory
+     * 
      * @return ShopResource
      */
-    public function store(StoreRequest $request) :ShopResource
+    public function store(StoreRequest $request, ShopHistory $shopHistory) :ShopResource
     {
         // バリデーションしてモデルのオブジェクト返す
         $shop = $request->makeShop();
@@ -82,6 +84,10 @@ class ShopsController extends Controller
 
         // 登録
         $shop->save();
+
+        // 履歴登録
+        $shopHistory->fill($shop->getShopHistoryArray())->save();
+
         return new ShopResource($shop);
     }
 
@@ -119,11 +125,13 @@ class ShopsController extends Controller
     /**
      * 更新
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param Request  $request
+     * @param int  $id
+     * @param ShopHistory $shopHistory
+     * 
      * @return ShopResource
      */
-    public function update(UpdateRequest $request, int $id) :ShopResource
+    public function update(UpdateRequest $request, int $id, ShopHistory $shopHistory) :ShopResource
     {
         
         // バリデーションしてモデルのオブジェクト返す
@@ -146,6 +154,10 @@ class ShopsController extends Controller
 
         // 登録
         $shop->save();
+
+        // 履歴登録
+        $shopHistory->fill($shop->getShopHistoryArray())->save();
+
         return new ShopResource($shop);
     }
 }
