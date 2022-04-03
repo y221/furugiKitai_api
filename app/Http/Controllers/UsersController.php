@@ -36,9 +36,9 @@ class UsersController extends Controller
      */
     public function __construct(User $user, SnsCredential $snsCredential, S3 $s3)
     {
-        $this->user          = $user;
+        $this->user = $user;
         $this->snsCredential = $snsCredential;
-        $this->s3            = $s3;
+        $this->s3 = $s3;
     }
 
     /**
@@ -49,7 +49,7 @@ class UsersController extends Controller
      */
     public function show(int $id) :UserResource
     {   
-        $user = $this->user->getUser($id);
+        $user = $this->user->find($id);
 
         if (is_null($user)) {
             return response()->json(
@@ -66,7 +66,7 @@ class UsersController extends Controller
      * @param Request $request
      * @return array
      */
-    public function update(Request $request, int $id) :UserResource
+    public function update(Request $request, int $id)
     {
         // リクエストに含まれるuidで検索し、更新予定のユーザーに紐づいていなければエラー
         $uid = $request->input('uid');
@@ -84,17 +84,16 @@ class UsersController extends Controller
         $input = $validator->validated();
 
         // 更新前のユーザーアイコン取得
-        $u = $this->user->getUser($request->input('id'));
-        $existingImage = $u->icon;
+        $user = $this->user->find($request->input('id'));
+        $existingImage = $user->icon;
 
         // 画像ファイルをS3にアップロード
         $image = $request->file('icon') ?? $request->input('icon');
-
         $uploadedS3Path = $this->s3->uploadImage($image, 'user_images', $existingImage);
         $input["icon"] = $uploadedS3Path;
 
         // DB更新
-        $user = $this->user->updateUser($id, $input);
+        $user->fill($input)->save();
 
         return new UserResource($user);
     }
