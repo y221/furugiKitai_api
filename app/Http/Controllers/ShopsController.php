@@ -16,7 +16,6 @@ use App\Http\Requests\Shop\StoreRequest;
 use App\Http\Requests\Shop\UpdateRequest;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Http\JsonResponse;
 
 class ShopsController extends Controller
 {
