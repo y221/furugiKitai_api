@@ -66,7 +66,7 @@ class UsersController extends Controller
      * @param Request $request
      * @return array
      */
-    public function update(Request $request, int $id)
+    public function update(Request $request, int $id) :UserResource
     {
         // リクエストに含まれるuidで検索し、更新予定のユーザーに紐づいていなければエラー
         $uid = $request->input('uid');
