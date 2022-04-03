@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Region;
 use App\Models\Prefecture;
+use Illuminate\Http\Resources\Json\JsonResource;
 use App\Http\Resources\Condition\PrefecturesGroupByRegionResource;
 use App\Http\Resources\Condition\AreasGroupByPrefectureResource;
 
@@ -21,13 +22,16 @@ class ConditionsController extends Controller
         $this->prefecture = $prefecture;
     }
 
-    public function prefectures()
+    /**
+     * 検索条件設定用のリスト取得
+     * 
+     * @return JsonResource
+     */
+    public function index() :JsonResource
     {
-        return new PrefecturesGroupByRegionResource($this->region);
-    }
-
-    public function areas()
-    {
-        return new AreasGroupByPrefectureResource($this->prefecture);
+        return new JsonResource([
+            'prefectures' => new PrefecturesGroupByRegionResource($this->region),
+            'areas' => new AreasGroupByPrefectureResource($this->prefecture)
+        ]);
     }
 }
