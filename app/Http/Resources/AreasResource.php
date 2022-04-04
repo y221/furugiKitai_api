@@ -19,7 +19,8 @@ class AreasResource extends JsonResource
            $data[] = [
                'id' => $area->id,
                'prefectureId' => $area->prefecture_id,
-               'name' => $area->name
+               'name' => $area->name,
+               'shop_count' => $area->shop_count
            ];
        }
 

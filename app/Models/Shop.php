@@ -2,9 +2,9 @@
 
 namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use App\Models\Prefecture;
 use App\Models\Gender;
-use App\Models\ShopLike;
 
 class Shop extends Model
 {
@@ -224,6 +224,43 @@ class Shop extends Model
         $array['shop_id'] = $array['id'];
         
         return $array;
+    }
+
+    /**
+     * 都道府県ごとの店舗数カウント数取得
+     * 
+     * @return object
+     */
+    public function getPrefecturesShopCount() :object
+    {
+        return $this->ShopCount('prefecture_id');
+    }
+
+    /**
+     * エリアごとの店舗数カウント数取得
+     * 
+     * @return object
+     */
+    public function getAreasShopCount() :object
+    {
+        return $this->ShopCount('area_id');
+    }
+
+    /**
+     * 店舗カウント数取得
+     * 
+     * @param string $key
+     * 
+     * @return object
+     */
+    private function ShopCount($key) :object
+    {
+        $query = $this->newQuery();
+        return $query->select(DB::raw("{$key} as id, count(*) as shop_count"))
+            ->where($key, '<>', 0)
+            ->where('active', '=', 1)
+            ->groupBy($key)
+            ->get();
     }
 }
 

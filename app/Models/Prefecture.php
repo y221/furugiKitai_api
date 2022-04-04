@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Prefecture extends Model
 {
+    public $timestamps = false;
+
     /**
      * 取得
      * @return object
