@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Prefecture extends Model
 {
     public $timestamps = false;
+    protected $fillable = ['shop_count'];
 
     /**
      * 取得

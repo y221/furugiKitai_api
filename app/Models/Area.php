@@ -10,4 +10,5 @@ class Area extends Model
     use HasFactory;
 
     public $timestamps = false;
+    protected $fillable = ['shop_count'];
 }

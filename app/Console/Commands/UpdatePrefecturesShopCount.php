@@ -46,7 +46,11 @@ class UpdatePrefecturesShopCount extends Command
     {
         // 店舗カウント
         $prefecturesShopCount = $this->shop->getPrefecturesShopCount();
-
-        $this->prefecture->upsert($prefecturesShopCount->toArray(), ['id'], ['shop_count']);
+        foreach ($prefecturesShopCount as $prefectureShopCount) {
+            $this->prefecture
+                ->find($prefectureShopCount->id)
+                ->fill($prefectureShopCount->toArray())
+                ->save();
+        }
     }
 }

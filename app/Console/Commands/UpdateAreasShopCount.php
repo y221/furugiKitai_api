@@ -46,7 +46,11 @@ class UpdateAreasShopCount extends Command
     {
         // 店舗カウント
         $areasShopCount = $this->shop->getAreasShopCount();
-
-        $this->area->upsert($areasShopCount->toArray(), ['id'], ['shop_count']);
+        foreach ($areasShopCount as $areaShopCount) {
+            $this->area
+                ->find($areaShopCount->id)
+                ->fill($areaShopCount->toArray())
+                ->save();
+        }
     }
 }
