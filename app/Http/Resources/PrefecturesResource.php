@@ -14,16 +14,11 @@ class PrefecturesResource extends JsonResource
      */
     public function toArray($request)
     {
-       $data = [];
-       foreach ($this->all()->sortBy('sort_number') as $prefecture) {
-           $data[] = [
-               'id' => $prefecture->id,
-               'regionId' => $prefecture->region_id,
-               'prefecture' => $prefecture->prefecture,
-               'shop_count' => $prefecture->shop_count
-           ];
-       }
-
-       return $data;
+        return [
+            'id' => $this->id,
+            'regionId' => $this->region_id,
+            'prefecture' => $this->prefecture,
+            'shop_count' => $this->shop_count
+        ];
     }
 }

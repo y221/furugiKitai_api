@@ -14,16 +14,11 @@ class AreasResource extends JsonResource
      */
     public function toArray($request)
     {
-       $data = [];
-       foreach ($this->all() as $area) {
-           $data[] = [
-               'id' => $area->id,
-               'prefectureId' => $area->prefecture_id,
-               'name' => $area->name,
-               'shop_count' => $area->shop_count
-           ];
-       }
-
-       return $data;
+        return [
+            'id' => $this->id,
+            'regionId' => $this->region_id,
+            'name' => $this->name,
+            'shop_count' => $this->shop_count
+        ];
     }
 }

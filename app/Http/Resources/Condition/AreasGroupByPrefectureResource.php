@@ -24,7 +24,7 @@ class AreasGroupByPrefectureResource extends JsonResource
             }
             $data[] = [
                 'prefecture' => $prefecture->prefecture,
-                'areas' => new AreasResource($prefecture->areas) 
+                'areas' => AreasResource::collection($prefecture->areas) 
             ];
         }
         return $data;

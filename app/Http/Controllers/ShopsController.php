@@ -55,7 +55,7 @@ class ShopsController extends Controller
     public function create(Prefecture $prefecture, Gender $gender) :JsonResource
     {
         return new JsonResource([
-            'prefectures' => new PrefecturesResource($prefecture),
+            'prefectures' => PrefecturesResource::collection($prefecture->orderBy('sort_number')->get()),
             'genders' => new GendersResource($gender)
         ]);
     }
@@ -117,7 +117,7 @@ class ShopsController extends Controller
 
         return new JsonResource([
             'shop' => new ShopResource($shop),
-            'prefectures' => new PrefecturesResource($prefecture),
+            'prefectures' => PrefecturesResource::collection($prefecture->orderBy('sort_number')->get()),
             'genders' => new GendersResource($gender)
         ]);
     }
