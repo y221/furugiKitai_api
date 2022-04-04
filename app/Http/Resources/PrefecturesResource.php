@@ -15,7 +15,7 @@ class PrefecturesResource extends JsonResource
     public function toArray($request)
     {
        $data = [];
-       foreach ($this->all() as $prefecture) {
+       foreach ($this->all()->sortBy('sort_number') as $prefecture) {
            $data[] = [
                'id' => $prefecture->id,
                'regionId' => $prefecture->region_id,
