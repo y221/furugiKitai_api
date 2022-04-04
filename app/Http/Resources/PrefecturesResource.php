@@ -19,7 +19,8 @@ class PrefecturesResource extends JsonResource
            $data[] = [
                'id' => $prefecture->id,
                'regionId' => $prefecture->region_id,
-               'prefecture' => $prefecture->prefecture
+               'prefecture' => $prefecture->prefecture,
+               'shop_count' => $prefecture->shop_count
            ];
        }
 
