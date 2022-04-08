@@ -262,5 +262,18 @@ class Shop extends Model
             ->groupBy($key)
             ->get();
     }
+
+    /**
+     * 軽度緯度が0のショップ取得
+     *
+     * @return object
+     */
+    public function getMapEmptyShops() :object
+    {
+        $query = $this->newQuery();
+        return $query->where('longitude', 0)
+            ->where('latitude', 0)
+            ->get();
+    }
 }
 
