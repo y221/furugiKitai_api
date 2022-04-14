@@ -17,7 +17,7 @@ class Prefecture extends Model
     public function getPrefectures()
     {
         $query = $this->newQuery();
-        $query->orderBy('sort_no')->with('areas');
+        $query->orderBy('sort_number')->with('areas');
         return $query->get();
     }
 
