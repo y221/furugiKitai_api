@@ -19,7 +19,7 @@ class PrefecturesGroupByRegionResource extends JsonResource
        foreach ($this->getRegions() as $region) {
            $data[] = [
                'name' => $region->name,
-               'prefectures' => PrefecturesResource::collection($region->prefectures) 
+               'prefectures' => PrefecturesResource::collection($region->prefectures->sortBy('sort_number')) 
            ];
        }
 
