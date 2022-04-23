@@ -23,7 +23,7 @@ class UsersController extends Controller
         'name' => 'required|max:50',
         'favorite' => 'max:50',
         'profile' => 'max:100',
-        'instagram' => 'max:10',
+        'instagram' => 'max:100',
     ];
 
     /**
