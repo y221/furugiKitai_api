@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\UserResource;
+use App\Http\Requests\User\UpdateRequest;
 use App\Models\User;
 use App\Models\SnsCredential;
 use App\Models\ShopLike;
@@ -66,7 +67,7 @@ class UsersController extends Controller
      * @param Request $request
      * @return array
      */
-    public function update(Request $request, int $id) :UserResource
+    public function update(UpdateRequest $request, int $id) // :UserResource
     {
         // リクエストに含まれるuidで検索し、更新予定のユーザーに紐づいていなければエラー
         $uid = $request->input('uid');
@@ -76,24 +77,18 @@ class UsersController extends Controller
             return ['errors' => 'ユーザーが存在しません'];
         }
 
-        // バリデーション
-        $validator = Validator::make($request->input(), self::USER_VALIDATE_RULE);
-        if ($validator->fails()) {
-            return ['errors' => $validator->errors()];
-        }
-        $input = $validator->validated();
-
-        // 更新前のユーザーアイコン取得
-        $user = $this->user->find($request->input('id'));
-        $existingImage = $user->icon;
+        // バリデーションしてモデルのオブジェクトを返す
+        $user = $request->makeUser($request->input('id'));
 
         // 画像ファイルをS3にアップロード
         $image = $request->file('icon') ?? $request->input('icon');
-        $uploadedS3Path = $this->s3->uploadImage($image, 'user_images', $existingImage);
-        $input["icon"] = $uploadedS3Path;
+        $savedUser = User::find($id);
+        $uploadedS3Path = $this->s3->uploadImage($image, 'user_images', $savedUser->icon);
+
+        $user->icon = $uploadedS3Path;
 
         // DB更新
-        $user->fill($input)->save();
+        $user->save();
 
         return new UserResource($user);
     }
