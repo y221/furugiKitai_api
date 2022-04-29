@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\SnsCredential;
+use App\Infrastructure\Aws\S3;
 use Exception;
-use Facade\FlareClient\Stacktrace\File;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\JsonResponse;
 
@@ -18,6 +18,7 @@ class LoginController extends Controller
 {
     protected $user;
     protected $snsCredential;
+    protected $s3;
 
     const USER_VALIDATE_RULE = [
         'icon' => '',
@@ -35,10 +36,11 @@ class LoginController extends Controller
      * @param SnsCredential $snsCredential
      * @return void
      */
-    public function __construct(User $user, SnsCredential $snsCredential)
+    public function __construct(User $user, SnsCredential $snsCredential, S3 $s3)
     {
         $this->user = $user;
         $this->snsCredential = $snsCredential;
+        $this->s3 = $s3;
     }
 
     /**
@@ -47,13 +49,13 @@ class LoginController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function login(Request $request)
+    public function login(Request $request) :UserResource
     {
         // uidで検索し、既にサービス登録済みであれば既存のユーザー情報をリターン
         $uid = $request->input('uid');
         $snsCredential = $this->snsCredential->getSnsCredential($uid);
         if (isset($snsCredential)) {
-            $existingUser = $this->user->getUser($snsCredential->user_id);
+            $existingUser = $this->user->find($snsCredential->user_id);
             if (empty($existingUser)) {
                 return ['errors' => 'エラー'];
             }
@@ -68,7 +70,7 @@ class LoginController extends Controller
             
             $request->session()->regenerate();
     
-            return $existingUser;
+            return new UserResource($existingUser);
         }
 
         // バリデーション
@@ -78,20 +80,12 @@ class LoginController extends Controller
         }
         $user = $validator->validated();
 
-        // 画像ファイルをS3にアップロード
-        try {
-            $image = file_get_contents($user["icon"]);
-            
-            $fileName = time();
-            Storage::disk('s3')->put('user_images/'.$fileName, $image, 'public');
-            $s3Path = Storage::disk('s3')->url('user_images/'.$fileName);
+        // 画像ファイルをS3にアップロードし、ユーザー登録用の連想配列に詰める
+        $image = file_get_contents($user["icon"]);
+        $filePath = 'user_images/'.time();
+        $this->s3->uploadImage($image, $filePath);
 
-            // ユーザー登録用のハッシュに詰める
-            $user["icon"] = $s3Path;
-
-        } catch(Exception $ex) {
-            return ['errors' => '画像アップロードに失敗しました。'];
-        }
+        $user["icon"] = $filePath;
 
         // 登録
         DB::transaction(function () use ($user, $uid){
@@ -114,7 +108,7 @@ class LoginController extends Controller
         $request->session()->regenerate();
 
         // 登録したユーザー情報を返却する
-        return $this->user;
+        return new UserResource($this->user);
     }
 
     /**

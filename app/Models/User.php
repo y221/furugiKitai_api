@@ -33,17 +33,6 @@ class User extends Authenticatable
     ];
 
     /**
-     *  ユーザーをidで取得
-     *
-     * @param integer $id
-     * @return User
-     */
-    public function getUser(int $id)
-    {
-        return $this->find($id);
-    }
-
-    /**
      *  ユーザー新規登録
      * @param array $user カラム名 => 値のハッシュ
      * @return bool 登録が成功したか否か
@@ -52,17 +41,6 @@ class User extends Authenticatable
     {
         $user['password'] = Hash::make('secret');
         return $this->fill($user)->save();
-    }
-
-    /**
-     *  ユーザー情報更新
-     * @param int $id
-     * @param array $user カラム名 => 値のハッシュ
-     * @return bool 登録が成功したか否か
-     */
-    public function updateUser(int $id, array $user) :bool
-    {
-        return $this->find($id)->fill($user)->save();
     }
 
     public function snsCredential() {

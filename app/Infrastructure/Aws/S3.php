@@ -20,29 +20,24 @@ class S3
     }
 
     /**
-     * TODO:ここの処理はユーザの画像処理とかも考慮したうえでやり方考えないといけなさそう
      * ファイルアップロード
      * 
      * @param object|string|null $image
      * @param string $saveDir
      * @param string $savedImage
      * 
-     * @return string
+     * @return string|bool $saveDirにdir名のみ指定した場合にはfileパス、dir名+file名指定した場合にはboolが返る
      */
-    public function uploadImage(object|string|null $image, string $saveDir, string $savedImage = '') : string
+    public function uploadImage($image, string $saveDir, string $savedImage = '') :string
     {
         // ファイルがない場合空を返す
         if (empty($image)) {
             return '';
         }
-        // 登録済み画像がポストされた画像と同じ場合
-        if (!empty($savedImage) && $image === $savedImage) {
-            return $savedImage;
-        }
 
-        // 念の為文字列判定かけておく
-        if (is_string($image)) {
-            return '';
+        // 登録済み画像がポストされた画像と同じ場合
+        if (!empty($savedImage) && $image === $this->getPath($savedImage)) {
+            return $savedImage;
         }
 
         // S3アップロードして取得

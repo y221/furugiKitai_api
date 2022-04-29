@@ -164,7 +164,9 @@ return [
         'businessHour' => '営業時間',
         'imageUrl' => '画像',
         'email' => 'メールアドレス',
-        'content' => 'お問い合わせ内容'
+        'content' => 'お問い合わせ内容',
+        'favorite' => '好きな古着',
+        'profile' => 'プロフィール',
     ],
 
 ];
